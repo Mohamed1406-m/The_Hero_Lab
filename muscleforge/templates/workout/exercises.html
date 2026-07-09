@@ -4,73 +4,257 @@
 {% block title %}Workout Exercises - MuscleForge AI{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2"><i class="bi bi-dumbbell"></i> Exercises</h1>
-</div>
+<style>
+  :root{
+    --mf-ink:        #14161A;
+    --mf-ink-raised:  #1D2026;
+    --mf-paper:       #F4F3EF;
+    --mf-paper-dim:   #A7ABB4;
+    --mf-slate:       #2A2D33;
+    --mf-volt:        #D4FF3F;
+    --mf-ember:       #FF5A36;
+    --mf-blue:        #5B8DEF;
+    --mf-radius:      14px;
+  }
 
-<!-- Filters -->
-<div class="card mb-4">
-    <div class="card-body">
-        <div class="row g-3">
-            <div class="col-md-3">
-                <label class="form-label">Difficulty</label>
-                <select class="form-select" id="difficultyFilter">
-                    <option value="">All</option>
-                    {% for val, label in difficulty_choices %}
-                    <option value="{{ val }}">{{ label }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Category</label>
-                <select class="form-select" id="categoryFilter">
-                    <option value="">All</option>
-                    {% for val, label in category_choices %}
-                    <option value="{{ val }}">{{ label }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Equipment</label>
-                <select class="form-select" id="equipmentFilter">
-                    <option value="">All</option>
-                    {% for val, label in equipment_choices %}
-                    <option value="{{ val }}">{{ label }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Search</label>
-                <input type="text" class="form-control" id="searchInput" placeholder="Search exercises...">
-            </div>
-        </div>
+  .mf-page{
+    background: var(--mf-ink);
+    color: var(--mf-paper);
+    margin: -1.5rem -1rem 0;
+    padding: 2.5rem 1.25rem 4rem;
+    font-family: 'Inter', system-ui, sans-serif;
+    min-height: 100vh;
+  }
+  @media (min-width: 768px){ .mf-page{ padding: 3rem 3rem 5rem; } }
+
+  .mf-eyebrow{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--mf-volt);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.75rem;
+  }
+  .mf-eyebrow::before{
+    content: "";
+    width: 22px; height: 2px;
+    background: var(--mf-volt);
+    display: inline-block;
+  }
+
+  .mf-title{
+    font-family: 'Anton', 'Archivo Black', sans-serif;
+    font-weight: 400;
+    text-transform: uppercase;
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    line-height: 0.95;
+    margin: 0 0 2rem;
+  }
+
+  /* ---- Filter bar ---- */
+  .mf-filters{
+    background: var(--mf-ink-raised);
+    border: 1px solid var(--mf-slate);
+    border-radius: var(--mf-radius);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  @media (min-width: 768px){ .mf-filters{ grid-template-columns: repeat(4, 1fr); } }
+
+  .mf-field-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 0.66rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--mf-paper-dim);
+    margin-bottom: 0.45rem;
+    display:block;
+  }
+  .mf-select, .mf-input{
+    width: 100%;
+    background: var(--mf-ink);
+    border: 1px solid var(--mf-slate);
+    color: var(--mf-paper);
+    border-radius: 8px;
+    padding: 0.55rem 0.7rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.85rem;
+  }
+  .mf-select:focus, .mf-input:focus{
+    outline: none;
+    border-color: var(--mf-volt);
+    box-shadow: 0 0 0 3px rgba(212,255,63,0.18);
+  }
+  .mf-select{
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23A7ABB4'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.8rem center;
+    padding-right: 2rem;
+  }
+  .mf-input::placeholder{ color: var(--mf-paper-dim); opacity: 0.7; }
+
+  /* ---- Grid + cards ---- */
+  .mf-grid{
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+  @media (min-width: 576px){ .mf-grid{ grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 992px){ .mf-grid{ grid-template-columns: 1fr 1fr 1fr; } }
+
+  .mf-card{
+    background: var(--mf-ink-raised);
+    border: 1px solid var(--mf-slate);
+    border-radius: var(--mf-radius);
+    padding: 1.35rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    transition: border-color .15s ease, transform .15s ease;
+  }
+  .mf-card:hover{ border-color: var(--mf-paper-dim); transform: translateY(-2px); }
+  @media (prefers-reduced-motion: reduce){ .mf-card{ transition: none; } .mf-card:hover{ transform: none; } }
+
+  .mf-card-cat{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--mf-blue);
+  }
+  .mf-card-title{
+    font-family: 'Anton', 'Archivo Black', sans-serif;
+    font-weight: 400;
+    text-transform: uppercase;
+    font-size: 1.4rem;
+    line-height: 1.05;
+    margin: 0;
+  }
+  .mf-card-desc{
+    color: var(--mf-paper-dim);
+    font-size: 0.92rem;
+    line-height: 1.5;
+    flex-grow: 1;
+    margin: 0;
+  }
+  .mf-card-footer{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 0.85rem;
+    border-top: 1px solid var(--mf-slate);
+  }
+
+  .mf-diff{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.3rem 0.65rem;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .mf-diff::before{
+    content: "";
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+  .mf-diff.beginner{ color: var(--mf-volt); background: rgba(212,255,63,0.12); }
+  .mf-diff.intermediate{ color: var(--mf-blue); background: rgba(91,141,239,0.12); }
+  .mf-diff.advanced{ color: var(--mf-ember); background: rgba(255,90,54,0.12); }
+  .mf-diff.default{ color: var(--mf-paper-dim); background: rgba(167,171,180,0.12); }
+
+  .mf-view-link{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--mf-paper);
+    text-decoration: none;
+    border: 1px solid var(--mf-slate);
+    border-radius: 999px;
+    padding: 0.35rem 0.9rem;
+    transition: border-color .15s ease, color .15s ease;
+    white-space: nowrap;
+  }
+  .mf-view-link:hover{ border-color: var(--mf-volt); color: var(--mf-volt); }
+
+  .mf-empty{
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 3.5rem 1rem;
+    color: var(--mf-paper-dim);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.9rem;
+    border: 1px dashed var(--mf-slate);
+    border-radius: var(--mf-radius);
+  }
+</style>
+
+<div class="mf-page">
+  <div class="mf-eyebrow">Training Library</div>
+  <h1 class="mf-title"><i class="bi bi-dumbbell"></i> Exercises</h1>
+
+  <!-- Filters -->
+  <div class="mf-filters">
+    <div>
+      <label class="mf-field-label">Difficulty</label>
+      <select class="mf-select" id="difficultyFilter">
+        <option value="">All</option>
+        {% for val, label in difficulty_choices %}
+        <option value="{{ val }}">{{ label }}</option>
+        {% endfor %}
+      </select>
     </div>
-</div>
+    <div>
+      <label class="mf-field-label">Category</label>
+      <select class="mf-select" id="categoryFilter">
+        <option value="">All</option>
+        {% for val, label in category_choices %}
+        <option value="{{ val }}">{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label class="mf-field-label">Equipment</label>
+      <select class="mf-select" id="equipmentFilter">
+        <option value="">All</option>
+        {% for val, label in equipment_choices %}
+        <option value="{{ val }}">{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label class="mf-field-label">Search</label>
+      <input type="text" class="mf-input" id="searchInput" placeholder="Search exercises...">
+    </div>
+  </div>
 
-<!-- Exercises Grid -->
-<div class="row" id="exercisesGrid">
+  <!-- Exercises Grid -->
+  <div class="mf-grid" id="exercisesGrid">
     {% for exercise in exercises %}
-    <div class="col-md-4 mb-4 exercise-card" data-difficulty="{{ exercise.difficulty }}" 
+    <div class="mf-card exercise-card" data-difficulty="{{ exercise.difficulty }}"
          data-category="{{ exercise.category }}" data-equipment="{{ exercise.equipment }}">
-        <div class="card h-100">
-            <div class="card-body">
-                <h5 class="card-title">{{ exercise.name }}</h5>
-                <p class="card-text small text-muted">{{ exercise.get_category_display }}</p>
-                <p class="card-text">{{ exercise.description|truncatechars:100 }}</p>
-                <div class="d-flex justify-content-between align-items-center">
-                    <span class="badge bg-{{ exercise.difficulty|default:'secondary' }}">{{ exercise.get_difficulty_display }}</span>
-                    <a href="{% url 'workout:exercise_detail' exercise.slug %}" class="btn btn-sm btn-outline-primary">
-                        View Details
-                    </a>
-                </div>
-            </div>
-        </div>
+      <div class="mf-card-cat">{{ exercise.get_category_display }}</div>
+      <h5 class="mf-card-title">{{ exercise.name }}</h5>
+      <p class="mf-card-desc">{{ exercise.description|truncatechars:100 }}</p>
+      <div class="mf-card-footer">
+        <span class="mf-diff {{ exercise.difficulty|default:'default' }}">{{ exercise.get_difficulty_display }}</span>
+        <a href="{% url 'workout:exercise_detail' exercise.slug %}" class="mf-view-link">View Details</a>
+      </div>
     </div>
     {% empty %}
-    <div class="col-12 text-center py-5">
-        <p class="text-muted">No exercises found. Try different filters.</p>
-    </div>
+    <div class="mf-empty">No exercises found. Try different filters.</div>
     {% endfor %}
+  </div>
 </div>
 {% endblock %}
 
@@ -81,23 +265,23 @@
         const category = document.getElementById('categoryFilter').value;
         const equipment = document.getElementById('equipmentFilter').value;
         const search = document.getElementById('searchInput').value.toLowerCase();
-        
+
         const cards = document.querySelectorAll('.exercise-card');
         cards.forEach(card => {
             const diff = card.dataset.difficulty;
             const cat = card.dataset.category;
             const eq = card.dataset.equipment;
             const text = card.innerText.toLowerCase();
-            
+
             const matchDiff = !difficulty || diff === difficulty;
             const matchCat = !category || cat === category;
             const matchEq = !equipment || eq === equipment;
             const matchSearch = !search || text.includes(search);
-            
-            card.style.display = (matchDiff && matchCat && matchEq && matchSearch) ? 'block' : 'none';
+
+            card.style.display = (matchDiff && matchCat && matchEq && matchSearch) ? 'flex' : 'none';
         });
     }
-    
+
     document.getElementById('difficultyFilter').addEventListener('change', filterExercises);
     document.getElementById('categoryFilter').addEventListener('change', filterExercises);
     document.getElementById('equipmentFilter').addEventListener('change', filterExercises);

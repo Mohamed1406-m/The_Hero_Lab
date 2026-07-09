@@ -4,129 +4,355 @@
 {% block title %}{{ exercise.name }} - MuscleForge AI{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2">{{ exercise.name }}</h1>
-    <a href="{% url 'workout:exercises' %}" class="btn btn-outline-secondary">
-        <i class="bi bi-arrow-left"></i> Back
-    </a>
-</div>
+<style>
+  :root{
+    --mf-ink:        #14161A;
+    --mf-ink-raised:  #1D2026;
+    --mf-paper:       #F4F3EF;
+    --mf-paper-dim:   #A7ABB4;
+    --mf-slate:       #2A2D33;
+    --mf-volt:        #D4FF3F;
+    --mf-ember:       #FF5A36;
+    --mf-blue:        #5B8DEF;
+    --mf-radius:      14px;
+  }
 
-<div class="row">
-    <div class="col-md-6">
-        <div class="card mb-4">
-            <div class="card-body">
-                {% if exercise.image %}
-                <img src="{{ exercise.image.url }}" class="img-fluid rounded mb-3" alt="{{ exercise.name }}">
-                {% endif %}
-                
-                <div class="mb-3">
-                    <h5 class="mb-3">Description</h5>
-                    <p>{{ exercise.description }}</p>
-                </div>
-                
-                <div class="mb-3">
-                    <h5 class="mb-3">Instructions</h5>
-                    <div class="bg-light p-3 rounded">{{ exercise.instructions|linebreaks }}</div>
-                </div>
-                
-                <div class="row">
-                    <div class="col-6">
-                        <div class="p-3 bg-light rounded">
-                            <h6 class="mb-1">Difficulty</h6>
-                            <span class="badge bg-{{ exercise.difficulty }}">{{ exercise.get_difficulty_display }}</span>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="p-3 bg-light rounded">
-                            <h6 class="mb-1">Category</h6>
-                            {{ exercise.get_category_display }}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+  .mf-page{
+    background: var(--mf-ink);
+    color: var(--mf-paper);
+    margin: -1.5rem -1rem 0;
+    padding: 2.5rem 1.25rem 4rem;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  @media (min-width: 768px){ .mf-page{ padding: 3rem 3rem 5rem; } }
+
+  .mf-eyebrow{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--mf-volt);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.75rem;
+  }
+  .mf-eyebrow::before{
+    content: "";
+    width: 22px; height: 2px;
+    background: var(--mf-volt);
+    display: inline-block;
+  }
+
+  .mf-back{
+    color: var(--mf-paper-dim);
+    text-decoration: none;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.85rem;
+    border: 1px solid var(--mf-slate);
+    border-radius: 999px;
+    padding: 0.4rem 1rem;
+    transition: border-color .15s ease, color .15s ease;
+  }
+  .mf-back:hover{ color: var(--mf-paper); border-color: var(--mf-paper-dim); }
+
+  /* ---- Hero ---- */
+  .mf-hero{
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    align-items: center;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--mf-slate);
+    margin-bottom: 2.25rem;
+  }
+  @media (min-width: 768px){ .mf-hero{ grid-template-columns: 1fr auto; } }
+
+  .mf-title{
+    font-family: 'Anton', 'Archivo Black', sans-serif;
+    font-weight: 400;
+    text-transform: uppercase;
+    font-size: clamp(2.2rem, 6vw, 3.6rem);
+    line-height: 0.95;
+    letter-spacing: 0.005em;
+    margin: 0 0 0.75rem;
+  }
+  .mf-tags{ display:flex; flex-wrap:wrap; gap:0.5rem; }
+  .mf-tag{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 0.3rem 0.7rem;
+    border-radius: 999px;
+    border: 1px solid var(--mf-slate);
+    color: var(--mf-paper-dim);
+  }
+
+  /* ---- Effort dial (signature element) ---- */
+  .mf-dial-wrap{ display:flex; flex-direction:column; align-items:center; gap:0.4rem; justify-self: start; }
+  @media (min-width: 768px){ .mf-dial-wrap{ justify-self:end; } }
+  .mf-dial-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--mf-paper-dim);
+  }
+  .mf-dial-value{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 1.6rem;
+    fill: var(--mf-paper);
+  }
+  .mf-dial-unit{ font-size: 0.7rem; fill: var(--mf-paper-dim); }
+
+  /* ---- Cards ---- */
+  .mf-grid{ display:grid; grid-template-columns: 1fr; gap: 1.75rem; }
+  @media (min-width: 992px){ .mf-grid{ grid-template-columns: 1.3fr 1fr; } }
+
+  .mf-card{
+    background: var(--mf-ink-raised);
+    border: 1px solid var(--mf-slate);
+    border-radius: var(--mf-radius);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .mf-card-head{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--mf-paper-dim);
+    margin-bottom: 1rem;
+    display:flex; align-items:center; gap:0.5rem;
+  }
+  .mf-card-head i{ color: var(--mf-volt); }
+
+  .mf-image{ border-radius: var(--mf-radius); margin-bottom: 1.25rem; width:100%; display:block; }
+
+  .mf-body-copy{ color: var(--mf-paper); line-height: 1.65; }
+  .mf-instructions{
+    background: var(--mf-ink);
+    border: 1px solid var(--mf-slate);
+    border-radius: 10px;
+    padding: 1.1rem 1.25rem;
+    color: var(--mf-paper);
+    line-height: 1.7;
+  }
+
+  /* ---- Stat blocks (replaces the old bootstrap table) ---- */
+  .mf-stats{ display:grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; margin-bottom: 0.5rem; }
+  .mf-stat{
+    background: var(--mf-ink);
+    border: 1px solid var(--mf-slate);
+    border-radius: 10px;
+    padding: 0.9rem 1rem;
+  }
+  .mf-stat-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 0.66rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--mf-paper-dim);
+    margin-bottom: 0.3rem;
+  }
+  .mf-stat-value{ font-family:'IBM Plex Mono', monospace; font-size: 1.1rem; color: var(--mf-paper); }
+  .mf-stat-value.accent{ color: var(--mf-volt); }
+
+  .mf-muscles-row{ grid-column: 1 / -1; }
+  .mf-muscle-chip{
+    display:inline-block;
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    background: rgba(91,141,239,0.15);
+    color: var(--mf-blue);
+    border: 1px solid rgba(91,141,239,0.35);
+    border-radius: 999px;
+    padding: 0.25rem 0.7rem;
+    margin: 0 0.35rem 0.35rem 0;
+  }
+
+  .mf-video{ border-radius: 10px; overflow:hidden; border: 1px solid var(--mf-slate); }
+
+  /* ---- Add to workout: stepper form ---- */
+  .mf-field-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--mf-paper-dim);
+    margin-bottom: 0.4rem;
+    display:block;
+  }
+  .mf-input{
+    width: 100%;
+    background: var(--mf-ink);
+    border: 1px solid var(--mf-slate);
+    color: var(--mf-paper);
+    border-radius: 8px;
+    padding: 0.55rem 0.7rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.95rem;
+  }
+  .mf-input:focus{
+    outline: none;
+    border-color: var(--mf-volt);
+    box-shadow: 0 0 0 3px rgba(212,255,63,0.18);
+  }
+  .mf-input::-webkit-outer-spin-button,
+  .mf-input::-webkit-inner-spin-button{ opacity: 1; }
+
+  .mf-cta{
+    width: 100%;
+    background: var(--mf-volt);
+    color: var(--mf-ink);
+    border: none;
+    border-radius: 8px;
+    padding: 0.8rem 1rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: transform .1s ease, background .15s ease;
+  }
+  .mf-cta:hover{ background: #e4ff70; }
+  .mf-cta:active{ transform: scale(0.98); }
+
+  @media (prefers-reduced-motion: reduce){
+    .mf-cta{ transition: none; }
+  }
+</style>
+
+<div class="mf-page">
+
+  <div class="d-flex justify-content-between align-items-start mb-2">
+    <div>
+      <div class="mf-eyebrow">Exercise Library</div>
     </div>
-    
-    <div class="col-md-6">
-        <div class="card mb-4">
-            <div class="card-header">
-                <h6 class="mb-0"><i class="bi bi-info-circle"></i> Exercise Details</h6>
-            </div>
-            <div class="card-body">
-                <table class="table">
-                    <tr>
-                        <th width="40%">Equipment</th>
-                        <td>{{ exercise.get_equipment_display }}</td>
-                    </tr>
-                    <tr>
-                        <th>Calories/min</th>
-                        <td>{{ exercise.calories_per_minute }} kcal</td>
-                    </tr>
-                    <tr>
-                        <th>Muscles Worked</th>
-                        <td>
-                            {% for muscle in exercise.muscles_worked.all %}
-                            <span class="badge bg-primary me-1 mb-1">{{ muscle.name }}</span>
-                            {% empty %}
-                            <span class="text-muted">Not specified</span>
-                            {% endfor %}
-                        </td>
-                    </tr>
-                </table>
-            </div>
-        </div>
-        
-        {% if exercise.video_url %}
-        <div class="card mb-4">
-            <div class="card-header">
-                <h6 class="mb-0"><i class="bi bi-play-circle"></i> Video Tutorial</h6>
-            </div>
-            <div class="card-body">
-                <div class="ratio ratio-16x9">
-                    <iframe src="{{ exercise.video_url }}" allowfullscreen></iframe>
-                </div>
-            </div>
-        </div>
+    <a href="{% url 'workout:exercises' %}" class="mf-back">&larr; Back</a>
+  </div>
+
+  <div class="mf-hero">
+    <div>
+      <h1 class="mf-title">{{ exercise.name }}</h1>
+      <div class="mf-tags">
+        <span class="mf-tag">{{ exercise.get_category_display }}</span>
+        <span class="mf-tag">{{ exercise.get_equipment_display }}</span>
+        <span class="mf-tag">{{ exercise.get_difficulty_display }}</span>
+      </div>
+    </div>
+
+    <!-- Signature element: effort dial, arc fill driven by difficulty -->
+    <div class="mf-dial-wrap">
+      <svg width="120" height="120" viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r="50" fill="none" stroke="#2A2D33" stroke-width="10"/>
+        <circle
+          cx="60" cy="60" r="50" fill="none"
+          stroke="{% if exercise.difficulty == 'advanced' %}#FF5A36{% elif exercise.difficulty == 'intermediate' %}#5B8DEF{% else %}#D4FF3F{% endif %}"
+          stroke-width="10"
+          stroke-linecap="round"
+          stroke-dasharray="314"
+          stroke-dashoffset="{% if exercise.difficulty == 'advanced' %}20{% elif exercise.difficulty == 'intermediate' %}110{% else %}200{% endif %}"
+          transform="rotate(-90 60 60)"
+        />
+        <text x="60" y="58" text-anchor="middle" class="mf-dial-value">{{ exercise.calories_per_minute }}</text>
+        <text x="60" y="74" text-anchor="middle" class="mf-dial-unit">kcal/min</text>
+      </svg>
+      <span class="mf-dial-label">Effort Level</span>
+    </div>
+  </div>
+
+  <div class="mf-grid">
+    <!-- Left column -->
+    <div>
+      <div class="mf-card">
+        {% if exercise.image %}
+        <img src="{{ exercise.image.url }}" class="mf-image" alt="{{ exercise.name }}">
         {% endif %}
-        
-        <div class="card">
-            <div class="card-header">
-                <h6 class="mb-0"><i class="bi bi-list-task"></i> Add to Workout</h6>
-            </div>
-            <div class="card-body">
-                <form id="addExerciseForm">
-                    <div class="row mb-3">
-                        <div class="col-md-4">
-                            <label class="form-label">Sets</label>
-                            <input type="number" class="form-control" value="3" min="1" max="10">
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Reps</label>
-                            <input type="text" class="form-control" value="10-12">
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Rest (sec)</label>
-                            <input type="number" class="form-control" value="60" min="15" max="300">
-                        </div>
-                    </div>
-                    <button type="button" class="btn btn-primary w-100" onclick="addToWorkout()">
-                        <i class="bi bi-plus-circle"></i> Add to Workout
-                    </button>
-                </form>
-            </div>
+
+        <div class="mb-4">
+          <div class="mf-card-head"><i class="bi bi-card-text"></i> Description</div>
+          <p class="mf-body-copy mb-0">{{ exercise.description }}</p>
         </div>
+
+        <div>
+          <div class="mf-card-head"><i class="bi bi-list-ol"></i> Instructions</div>
+          <div class="mf-instructions">{{ exercise.instructions|linebreaks }}</div>
+        </div>
+      </div>
     </div>
+
+    <!-- Right column -->
+    <div>
+      <div class="mf-card">
+        <div class="mf-card-head"><i class="bi bi-clipboard-data"></i> Exercise Details</div>
+        <div class="mf-stats">
+          <div class="mf-stat">
+            <div class="mf-stat-label">Equipment</div>
+            <div class="mf-stat-value">{{ exercise.get_equipment_display }}</div>
+          </div>
+          <div class="mf-stat">
+            <div class="mf-stat-label">Calories / min</div>
+            <div class="mf-stat-value accent">{{ exercise.calories_per_minute }} kcal</div>
+          </div>
+          <div class="mf-stat mf-muscles-row">
+            <div class="mf-stat-label">Muscles Worked</div>
+            <div>
+              {% for muscle in exercise.muscles_worked.all %}
+              <span class="mf-muscle-chip">{{ muscle.name }}</span>
+              {% empty %}
+              <span class="mf-paper-dim">Not specified</span>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {% if exercise.video_url %}
+      <div class="mf-card">
+        <div class="mf-card-head"><i class="bi bi-play-circle"></i> Video Tutorial</div>
+        <div class="ratio ratio-16x9 mf-video">
+          <iframe src="{{ exercise.video_url }}" allowfullscreen></iframe>
+        </div>
+      </div>
+      {% endif %}
+
+      <div class="mf-card mb-0">
+        <div class="mf-card-head"><i class="bi bi-plus-circle"></i> Add to Workout</div>
+        <form id="addExerciseForm">
+          <div class="row g-3 mb-3">
+            <div class="col-4">
+              <label class="mf-field-label">Sets</label>
+              <input type="number" class="mf-input" id="mfSets" value="3" min="1" max="10">
+            </div>
+            <div class="col-4">
+              <label class="mf-field-label">Reps</label>
+              <input type="text" class="mf-input" id="mfReps" value="10-12">
+            </div>
+            <div class="col-4">
+              <label class="mf-field-label">Rest (s)</label>
+              <input type="number" class="mf-input" id="mfRest" value="60" min="15" max="300">
+            </div>
+          </div>
+          <button type="button" class="mf-cta" onclick="addToWorkout()">Add to Workout</button>
+        </form>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
     function addToWorkout() {
-        const form = document.getElementById('addExerciseForm');
-        const formData = new FormData(form);
-        
+        const sets = document.getElementById('mfSets').value;
+        const reps = document.getElementById('mfReps').value;
+        const rest = document.getElementById('mfRest').value;
+
         // In a real app, this would add to a workout plan
-        alert('Exercise added to your workout! (Demo)');
+        alert(`Exercise added to your workout! (Demo)\nSets: ${sets} | Reps: ${reps} | Rest: ${rest}s`);
     }
 </script>
 {% endblock %}

@@ -14,15 +14,18 @@ class ChallengeListView(View):
     def get(self, request):
         challenges = Challenge.objects.filter(is_active=True)
         user_challenges = UserChallenge.objects.filter(user=request.user).select_related('challenge')
-        joined_ids = user_challenges.values_list('challenge_id', flat=True)
+        joined_ids = list(user_challenges.values_list('challenge_id', flat=True))
         xp, _ = UserXP.objects.get_or_create(user=request.user)
-        achievements = UserAchievement.objects.filter(user=request.user).select_related('achievement')
+        user_achievements = UserAchievement.objects.filter(user=request.user).select_related('achievement')
+        achievements = Achievement.objects.all()
+        earned = list(user_achievements.values_list('achievement_id', flat=True))
         return render(request, self.template_name, {
             'challenges': challenges,
             'user_challenges': user_challenges,
             'joined_ids': joined_ids,
             'xp': xp,
             'achievements': achievements,
+            'earned': earned,
         })
 
 
@@ -55,7 +58,9 @@ class AchievementsView(View):
 
     def get(self, request):
         all_achievements = Achievement.objects.all()
-        earned = UserAchievement.objects.filter(user=request.user).values_list('achievement_id', flat=True)
+        earned = list(
+            UserAchievement.objects.filter(user=request.user).values_list('achievement_id', flat=True)
+        )
         xp, _ = UserXP.objects.get_or_create(user=request.user)
         return render(request, self.template_name, {
             'achievements': all_achievements,

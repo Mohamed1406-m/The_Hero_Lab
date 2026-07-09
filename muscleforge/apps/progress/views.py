@@ -14,19 +14,44 @@ class ProgressDashboardView(View):
     template_name = 'progress/dashboard.html'
 
     def get(self, request):
-        weight_logs = WeightLog.objects.filter(user=request.user)[:30]
-        measurements = BodyMeasurement.objects.filter(user=request.user)[:10]
-        photos = ProgressPhoto.objects.filter(user=request.user)[:12]
+        weight_logs = list(
+            WeightLog.objects.filter(user=request.user).order_by('-date')[:30]
+        )
+        measurements = BodyMeasurement.objects.filter(user=request.user).order_by('-date')[:10]
+        photos = ProgressPhoto.objects.filter(user=request.user).order_by('-date')[:12]
         latest_measurement = measurements.first()
 
-        weight_data = list(weight_logs.order_by('date').values('date', 'weight'))
+        # Chart data, oldest -> newest (independent query so slicing/ordering never collide)
+        chart_rows = list(
+            WeightLog.objects.filter(user=request.user)
+            .order_by('date')[:30]
+            .values('date', 'weight')
+        )
+        chart_labels = [row['date'].strftime('%b %d') for row in chart_rows]
+        chart_weights = [float(row['weight']) for row in chart_rows]
+
+        # Overall change: oldest entry vs. latest entry shown on the chart
+        weight_change = None
+        if len(chart_rows) >= 2:
+            weight_change = chart_rows[-1]['weight'] - chart_rows[0]['weight']
+
+        # Per-row change vs. the next (older) entry, since weight_logs is newest-first
+        weight_rows = []
+        for i, log in enumerate(weight_logs):
+            change = None
+            if i + 1 < len(weight_logs):
+                change = log.weight - weight_logs[i + 1].weight
+            weight_rows.append({'log': log, 'change': change})
 
         return render(request, self.template_name, {
             'weight_logs': weight_logs,
+            'weight_rows': weight_rows,
             'measurements': measurements,
             'photos': photos,
             'latest_measurement': latest_measurement,
-            'weight_data': weight_data,
+            'chart_labels': chart_labels,
+            'chart_weights': chart_weights,
+            'weight_change': weight_change,
             'weight_form': WeightLogForm(),
             'measurement_form': BodyMeasurementForm(),
             'photo_form': ProgressPhotoForm(),

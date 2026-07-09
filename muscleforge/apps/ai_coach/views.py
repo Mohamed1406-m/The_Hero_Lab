@@ -12,6 +12,12 @@ from .services import stream_chat_with_ai, chat_with_ai, generate_diet_plan, gen
 @method_decorator(login_required, name='dispatch')
 class AIChatView(View):
     template_name = 'ai_coach/chat.html'
+    suggested_prompts = [
+        "Create a workout plan for me",
+        "What should I eat to gain muscle",
+        "How do I improve my sleep",
+        "Best exercises for beginners",
+    ]
 
     def get(self, request):
         sessions = ChatSession.objects.filter(user=request.user)[:10]
@@ -27,6 +33,7 @@ class AIChatView(View):
             'sessions': sessions,
             'current_session': current_session,
             'chat_messages': chat_messages,
+            'suggested_prompts': self.suggested_prompts,
         })
 
 

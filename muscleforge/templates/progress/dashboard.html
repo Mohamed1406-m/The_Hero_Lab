@@ -4,159 +4,319 @@
 {% block title %}Progress Tracker - MuscleForge AI{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2"><i class="bi bi-graph-up"></i> Progress Tracker</h1>
-    <div class="btn-toolbar mb-2 mb-md-0">
-        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#weightModal">
-            <i class="bi bi-plus-circle"></i> Log Weight
-        </button>
-        <button class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#measurementModal">
-            <i class="bi bi-plus-circle"></i> Add Measurements
-        </button>
-    </div>
-</div>
+<style>
+  :root{
+    --ai-ink:      #0B0D12;
+    --ai-panel:    #12151C;
+    --ai-panel-2:  #171B24;
+    --ai-border:   #232838;
+    --ai-text:     #E8EAF0;
+    --ai-dim:      #8890A3;
+    --ai-violet:   #8B5CF6;
+    --ai-cyan:     #22D3EE;
+    --ai-gradient: linear-gradient(135deg, var(--ai-violet), var(--ai-cyan));
+  }
 
-<!-- Stats -->
-<div class="row mb-4">
-    <div class="col-md-3 col-sm-6 mb-3">
-        <div class="card bg-primary text-white h-100">
-            <div class="card-body">
-                <h6 class="card-title">Current Weight</h6>
-                <h3 class="mb-0">{{ latest_measurement.weight|default:"-" }} kg</h3>
-                <small>Goal: {{ user_profile.goal_weight|default:"-" }} kg</small>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3 col-sm-6 mb-3">
-        <div class="card bg-success text-white h-100">
-            <div class="card-body">
-                <h6 class="card-title">Waist</h6>
-                <h3 class="mb-0">{{ latest_measurement.waist|default:"-" }} cm</h3>
-                <small>Target: < 90 cm</small>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3 col-sm-6 mb-3">
-        <div class="card bg-info text-white h-100">
-            <div class="card-body">
-                <h6 class="card-title">Chest</h6>
-                <h3 class="mb-0">{{ latest_measurement.chest|default:"-" }} cm</h3>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3 col-sm-6 mb-3">
-        <div class="card bg-warning text-white h-100">
-            <div class="card-body">
-                <h6 class="card-title">Arms</h6>
-                <h3 class="mb-0">{{ latest_measurement.arms|default:"-" }} cm</h3>
-            </div>
-        </div>
-    </div>
-</div>
+  .ai-page{
+    background: var(--ai-ink);
+    color: var(--ai-text);
+    margin: -1.5rem -1rem 0;
+    padding: 2.5rem 1.25rem 4rem;
+    font-family: 'Inter', system-ui, sans-serif;
+    min-height: 100vh;
+  }
+  @media (min-width: 768px){ .ai-page{ padding: 3rem 3rem 5rem; } }
 
-<!-- Charts -->
-<div class="row mb-4">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-header">
-                <i class="bi bi-graph-up"></i> Weight Progress
-            </div>
-            <div class="card-body">
-                <canvas id="weightChart" height="100"></canvas>
-            </div>
-        </div>
+  .ai-eyebrow{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase;
+    background: var(--ai-gradient);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.75rem;
+  }
+  .ai-eyebrow::before{ content:""; width:22px; height:2px; background: var(--ai-gradient); display:inline-block; }
+
+  .ai-headrow{
+    display: flex; justify-content: space-between; align-items: flex-end;
+    flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;
+  }
+  .ai-title{
+    font-family: 'Space Grotesk', 'Inter', sans-serif;
+    font-weight: 700; font-size: clamp(1.8rem, 4.5vw, 2.4rem);
+    margin: 0; letter-spacing: -0.01em;
+  }
+  .ai-toolbar{ display: flex; gap: 0.6rem; flex-wrap: wrap; }
+  .ai-btn{
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.78rem; letter-spacing: 0.03em; text-transform: uppercase;
+    border-radius: 999px; padding: 0.55rem 1.1rem;
+    border: 1px solid var(--ai-border); background: transparent; color: var(--ai-text);
+    cursor: pointer; text-decoration: none;
+    transition: border-color .15s ease, color .15s ease;
+    display: inline-flex; align-items: center; gap: 0.4rem;
+  }
+  .ai-btn:hover{ border-color: var(--ai-violet); color: var(--ai-violet); }
+  .ai-btn.primary{ background: var(--ai-gradient); color: #fff; border: none; font-weight: 600; }
+  .ai-btn.primary:hover{ filter: brightness(1.1); color: #fff; }
+
+  /* ---- Stat cards ---- */
+  .ai-stats-row{ display: grid; grid-template-columns: 1fr; gap: 1rem; margin-bottom: 1.75rem; }
+  @media (min-width: 576px){ .ai-stats-row{ grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 992px){ .ai-stats-row{ grid-template-columns: repeat(4, 1fr); } }
+
+  .ai-stat-card{
+    background: var(--ai-panel);
+    border: 1px solid var(--ai-border);
+    border-radius: 16px;
+    padding: 1.25rem;
+  }
+  .ai-stat-label{
+    font-family:'IBM Plex Mono', monospace; font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ai-dim); margin-bottom: 0.5rem;
+  }
+  .ai-stat-value{
+    font-family: 'Space Grotesk', 'Inter', sans-serif;
+    font-weight: 700; font-size: 1.9rem; line-height: 1; margin-bottom: 0.4rem;
+  }
+  .ai-stat-sub{ font-family:'IBM Plex Mono', monospace; font-size: 0.72rem; color: var(--ai-dim); }
+  .ai-stat-delta{
+    display: inline-flex; align-items: center; gap: 0.3rem;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem;
+    padding: 0.15rem 0.5rem; border-radius: 999px; margin-left: 0.5rem;
+  }
+  .ai-stat-delta.up{ color: #FF6B6B; background: rgba(255,107,107,0.12); }
+  .ai-stat-delta.down{ color: var(--ai-cyan); background: rgba(34,211,238,0.12); }
+
+  .ai-stat-card.accent-weight .ai-stat-value{
+    background: var(--ai-gradient); -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .ai-stat-card.accent-waist .ai-stat-value{ color: var(--ai-cyan); }
+
+  /* ---- Panels ---- */
+  .ai-grid-2{ display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin-bottom: 1.75rem; }
+  @media (min-width: 992px){ .ai-grid-2{ grid-template-columns: 1.7fr 1fr; } }
+
+  .ai-panel-card{
+    background: var(--ai-panel);
+    border: 1px solid var(--ai-border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .ai-panel-head{
+    font-family:'IBM Plex Mono', monospace; font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--ai-dim); margin-bottom: 1.1rem;
+    display:flex; align-items:center; gap:0.5rem;
+  }
+  .ai-panel-head i{ color: var(--ai-violet); }
+
+  /* ---- Measurement list ---- */
+  .ai-mlist{ display:flex; flex-direction:column; gap:0.6rem; }
+  .ai-mrow{
+    display:flex; justify-content:space-between; align-items:center;
+    padding: 0.65rem 0.85rem;
+    background: var(--ai-panel-2);
+    border: 1px solid var(--ai-border);
+    border-radius: 10px;
+  }
+  .ai-mrow-label{ font-family:'IBM Plex Mono', monospace; font-size: 0.78rem; color: var(--ai-dim); text-transform: uppercase; letter-spacing: 0.05em; }
+  .ai-mrow-value{ font-family:'IBM Plex Mono', monospace; font-size: 0.95rem; color: var(--ai-text); }
+  .ai-empty-note{ color: var(--ai-dim); font-family:'IBM Plex Mono', monospace; font-size: 0.85rem; }
+
+  /* ---- Photos ---- */
+  .ai-photos{ display:grid; grid-template-columns: 1fr; gap: 1rem; }
+  @media (min-width: 576px){ .ai-photos{ grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 992px){ .ai-photos{ grid-template-columns: 1fr 1fr 1fr; } }
+  .ai-photo-card{ background: var(--ai-panel-2); border: 1px solid var(--ai-border); border-radius: 12px; overflow: hidden; }
+  .ai-photo-card img{ width: 100%; height: 220px; object-fit: cover; display:block; }
+  .ai-photo-meta{ padding: 0.85rem 1rem; }
+  .ai-photo-angle{ font-family:'IBM Plex Mono', monospace; font-size: 0.72rem; letter-spacing:0.06em; text-transform:uppercase; color: var(--ai-cyan); }
+  .ai-photo-date{ font-family:'IBM Plex Mono', monospace; font-size: 0.72rem; color: var(--ai-dim); }
+  .ai-photo-notes{ font-size: 0.85rem; color: var(--ai-dim); margin-top: 0.3rem; margin-bottom: 0; }
+
+  /* ---- Weight history table ---- */
+  .ai-table-wrap{ overflow-x: auto; }
+  .ai-table{ width: 100%; border-collapse: collapse; font-family: 'Inter', sans-serif; }
+  .ai-table thead th{
+    font-family:'IBM Plex Mono', monospace; font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--ai-dim); text-align: left; padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid var(--ai-border);
+  }
+  .ai-table tbody td{
+    padding: 0.75rem; border-bottom: 1px solid var(--ai-border); font-size: 0.9rem; color: var(--ai-text);
+  }
+  .ai-table tbody tr:last-child td{ border-bottom: none; }
+  .ai-table tbody tr:hover{ background: rgba(255,255,255,0.02); }
+  .ai-change{ font-family:'IBM Plex Mono', monospace; font-size: 0.85rem; }
+  .ai-change.up{ color: #FF6B6B; }
+  .ai-change.down{ color: var(--ai-cyan); }
+  .ai-change.flat{ color: var(--ai-dim); }
+  .ai-del-btn{
+    background: transparent; border: 1px solid var(--ai-border); color: #FF6B6B;
+    border-radius: 8px; padding: 0.35rem 0.55rem; cursor: pointer; transition: border-color .15s ease;
+  }
+  .ai-del-btn:hover{ border-color: #FF6B6B; }
+
+  /* ---- Bootstrap modal re-theme + stacking fix ----
+     Forces correct z-index order regardless of any conflicting rule
+     elsewhere in base.html that was causing the backdrop to sit on
+     top of (and swallow clicks/typing meant for) the dialog. */
+  .modal{ z-index: 1065 !important; }
+  .modal-backdrop{ z-index: 1060 !important; }
+  .modal-dialog{ pointer-events: none; }
+  .modal-content{
+    pointer-events: auto;
+    background: var(--ai-panel); border: 1px solid var(--ai-border); color: var(--ai-text);
+    border-radius: 16px;
+  }
+  .modal-header, .modal-footer{ border-color: var(--ai-border); }
+  .modal-title{ font-family:'Space Grotesk','Inter',sans-serif; font-weight:700; }
+  .modal .form-control, .modal .form-select{
+    background: var(--ai-panel-2); color: var(--ai-text); border: 1px solid var(--ai-border);
+  }
+  .modal .form-control:focus, .modal .form-select:focus{
+    background: var(--ai-panel-2); color: var(--ai-text); border-color: var(--ai-violet);
+    box-shadow: 0 0 0 3px rgba(139,92,246,0.18);
+  }
+  .modal label{ font-family:'IBM Plex Mono', monospace; font-size: 0.72rem; letter-spacing:0.05em; text-transform: uppercase; color: var(--ai-dim); }
+  .modal .btn-close{ filter: invert(1) grayscale(1); }
+  .modal .btn-secondary{ background: transparent; border: 1px solid var(--ai-border); color: var(--ai-text); }
+  .modal .btn-primary{ background: var(--ai-gradient); border: none; color: #fff; font-weight: 600; }
+  .modal .btn-primary:hover{ filter: brightness(1.1); color: #fff; }
+</style>
+
+<div class="ai-page">
+
+  <div class="ai-headrow">
+    <div>
+      <div class="ai-eyebrow">Body Metrics</div>
+      <h1 class="ai-title"><i class="bi bi-graph-up"></i> Progress Tracker</h1>
     </div>
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-header">
-                <i class="bi bi-ruler"></i> Measurements
-            </div>
-            <div class="card-body">
-                {% if latest_measurement %}
-                <table class="table">
-                    <tr><th>Waist</th><td>{{ latest_measurement.waist }} cm</td></tr>
-                    <tr><th>Chest</th><td>{{ latest_measurement.chest }} cm</td></tr>
-                    <tr><th>Arms</th><td>{{ latest_measurement.arms }} cm</td></tr>
-                    <tr><th>Thighs</th><td>{{ latest_measurement.thighs }} cm</td></tr>
-                    <tr><th>Calves</th><td>{{ latest_measurement.calves }} cm</td></tr>
-                </table>
+    <div class="ai-toolbar">
+      <button class="ai-btn primary" data-bs-toggle="modal" data-bs-target="#weightModal">
+        <i class="bi bi-plus-circle"></i> Log Weight
+      </button>
+      <button class="ai-btn" data-bs-toggle="modal" data-bs-target="#measurementModal">
+        <i class="bi bi-plus-circle"></i> Add Measurements
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="ai-stats-row">
+    <div class="ai-stat-card accent-weight">
+      <div class="ai-stat-label">Current Weight</div>
+      <div class="ai-stat-value">
+        {{ latest_measurement.weight|default:"-" }} kg
+        {% if weight_change is not None %}
+          {% if weight_change > 0 %}
+            <span class="ai-stat-delta up">&uarr; {{ weight_change|floatformat:1 }}</span>
+          {% elif weight_change < 0 %}
+            <span class="ai-stat-delta down">&darr; {{ weight_change|floatformat:1|cut:"-" }}</span>
+          {% endif %}
+        {% endif %}
+      </div>
+      <div class="ai-stat-sub">Goal: {{ user_profile.goal_weight|default:"-" }} kg</div>
+    </div>
+    <div class="ai-stat-card accent-waist">
+      <div class="ai-stat-label">Waist</div>
+      <div class="ai-stat-value">{{ latest_measurement.waist|default:"-" }} cm</div>
+      <div class="ai-stat-sub">Target: &lt; 90 cm</div>
+    </div>
+    <div class="ai-stat-card">
+      <div class="ai-stat-label">Chest</div>
+      <div class="ai-stat-value">{{ latest_measurement.chest|default:"-" }} cm</div>
+    </div>
+    <div class="ai-stat-card">
+      <div class="ai-stat-label">Arms</div>
+      <div class="ai-stat-value">{{ latest_measurement.arms|default:"-" }} cm</div>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="ai-grid-2">
+    <div class="ai-panel-card mb-0">
+      <div class="ai-panel-head"><i class="bi bi-graph-up"></i> Weight Progress</div>
+      <canvas id="weightChart" height="100"></canvas>
+    </div>
+    <div class="ai-panel-card mb-0">
+      <div class="ai-panel-head"><i class="bi bi-rulers"></i> Measurements</div>
+      {% if latest_measurement %}
+      <div class="ai-mlist">
+        <div class="ai-mrow"><span class="ai-mrow-label">Waist</span><span class="ai-mrow-value">{{ latest_measurement.waist }} cm</span></div>
+        <div class="ai-mrow"><span class="ai-mrow-label">Chest</span><span class="ai-mrow-value">{{ latest_measurement.chest }} cm</span></div>
+        <div class="ai-mrow"><span class="ai-mrow-label">Arms</span><span class="ai-mrow-value">{{ latest_measurement.arms }} cm</span></div>
+        <div class="ai-mrow"><span class="ai-mrow-label">Thighs</span><span class="ai-mrow-value">{{ latest_measurement.thighs }} cm</span></div>
+        <div class="ai-mrow"><span class="ai-mrow-label">Calves</span><span class="ai-mrow-value">{{ latest_measurement.calves }} cm</span></div>
+      </div>
+      {% else %}
+      <p class="ai-empty-note">No measurements yet.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Progress Photos -->
+  <div class="ai-panel-card">
+    <div class="ai-panel-head"><i class="bi bi-image"></i> Progress Photos</div>
+    <div class="ai-photos">
+      {% for photo in photos %}
+      <div class="ai-photo-card">
+        <img src="{{ photo.photo.url }}" alt="{{ photo.get_angle_display }}">
+        <div class="ai-photo-meta">
+          <div class="ai-photo-angle">{{ photo.get_angle_display }}</div>
+          <div class="ai-photo-date">{{ photo.date }}</div>
+          {% if photo.notes %}<p class="ai-photo-notes">{{ photo.notes }}</p>{% endif %}
+        </div>
+      </div>
+      {% empty %}
+      <p class="ai-empty-note mb-0">No progress photos yet. Upload your first one!</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Weight History -->
+  <div class="ai-panel-card mb-0">
+    <div class="ai-panel-head"><i class="bi bi-list-task"></i> Weight History</div>
+    <div class="ai-table-wrap">
+      <table class="ai-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Weight</th>
+            <th>Change</th>
+            <th>Notes</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in weight_rows %}
+          <tr>
+            <td>{{ row.log.date }}</td>
+            <td>{{ row.log.weight }} kg</td>
+            <td>
+              {% if row.change is not None %}
+                {% if row.change > 0 %}
+                  <span class="ai-change up">&uarr; {{ row.change|floatformat:1 }} kg</span>
+                {% elif row.change < 0 %}
+                  <span class="ai-change down">&darr; {{ row.change|floatformat:1|cut:"-" }} kg</span>
                 {% else %}
-                <p class="text-muted">No measurements yet.</p>
+                  <span class="ai-change flat">&mdash; 0.0 kg</span>
                 {% endif %}
-            </div>
-        </div>
+              {% else %}
+                <span class="ai-change flat">&mdash;</span>
+              {% endif %}
+            </td>
+            <td>{{ row.log.notes }}</td>
+            <td>
+              <button class="ai-del-btn" onclick="deleteWeight({{ row.log.id }})">
+                <i class="bi bi-trash"></i>
+              </button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
-</div>
-
-<!-- Progress Photos -->
-<div class="card mb-4">
-    <div class="card-header">
-        <i class="bi bi-image"></i> Progress Photos
-    </div>
-    <div class="card-body">
-        <div class="row g-3">
-            {% for photo in photos %}
-            <div class="col-md-4">
-                <div class="card">
-                    <img src="{{ photo.photo.url }}" class="card-img-top" alt="{{ photo.get_angle_display }}">
-                    <div class="card-body">
-                        <h6 class="card-title">{{ photo.get_angle_display }} - {{ photo.date }}</h6>
-                        <p class="card-text small">{{ photo.notes }}</p>
-                    </div>
-                </div>
-            </div>
-            {% empty %}
-            <div class="col-12 text-center">
-                <p class="text-muted">No progress photos yet. Upload your first one!</p>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-</div>
-
-<!-- Weight History -->
-<div class="card">
-    <div class="card-header">
-        <i class="bi bi-list-task"></i> Weight History
-    </div>
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Weight</th>
-                        <th>Change</th>
-                        <th>Notes</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for log in weight_logs %}
-                    <tr>
-                        <td>{{ log.date }}</td>
-                        <td>{{ log.weight }} kg</td>
-                        <td>
-                            {% if forloop.counter0 > 0 %}
-                            {% with prev=weight_logs|slice:":forloop.counter0"|last %}
-                            {% with diff=log.weight|add:0|sub:prev.weight %}
-                            {% if diff > 0 %}+{% endif %}{{ diff|floatformat:1 }}
-                            {% endwith %}
-                            {% endwith %}
-                            {% endif %}
-                        </td>
-                        <td>{{ log.notes }}</td>
-                        <td>
-                            <button class="btn btn-sm btn-danger" onclick="deleteWeight({{ log.id }})">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
+  </div>
 </div>
 
 <!-- Modals -->
@@ -205,24 +365,34 @@
 
 {% block extra_js %}
 <script>
-    // Weight Chart
     const weightCtx = document.getElementById('weightChart').getContext('2d');
     new Chart(weightCtx, {
         type: 'line',
         data: {
-            labels: {{ weight_data|json_script:"weight-data" }},
+            labels: {{ chart_labels|safe }},
             datasets: [{
                 label: 'Weight (kg)',
-                data: {{ weight_data|json_script:"weight-data" }},
-                borderColor: 'rgba(255, 99, 132, 1)',
+                data: {{ chart_weights|safe }},
+                borderColor: '#8B5CF6',
+                backgroundColor: 'rgba(139, 92, 246, 0.08)',
+                pointBackgroundColor: '#22D3EE',
+                pointBorderColor: '#0B0D12',
+                fill: true,
                 tension: 0.3
             }]
         },
         options: {
-            responsive: true
+            responsive: true,
+            plugins: {
+                legend: { labels: { color: '#8890A3', font: { family: 'IBM Plex Mono' } } }
+            },
+            scales: {
+                x: { ticks: { color: '#8890A3' }, grid: { color: '#232838' } },
+                y: { ticks: { color: '#8890A3' }, grid: { color: '#232838' } }
+            }
         }
     });
-    
+
     function deleteWeight(id) {
         if (confirm('Delete this weight log?')) {
             fetch(`/progress/delete-weight/${id}/`, {
