@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Notifications - MuscleForge AI{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><i class="bi bi-bell"></i> Notifications</h1>
+    <a href="{% url 'notifications:settings' %}" class="btn btn-primary">
+        <i class="bi bi-gear"></i> Settings
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">All Notifications</h6>
+            </div>
+            <div class="card-body">
+                {% for notification in notifications %}
+                <div class="row mb-3 {% if not notification.is_read %}bg-light{% endif %}">
+                    <div class="col-md-1 text-center">
+                        {% if notification.is_read %}
+                        <i class="bi bi-envelope-open"></i>
+                        {% else %}
+                        <i class="bi bi-envelope"></i>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-11">
+                        <h6 class="mb-1">{{ notification.title }}</h6>
+                        <p class="mb-2 small">{{ notification.message }}</p>
+                        <small class="text-muted">
+                            {{ notification.get_notification_type_display }} - {{ notification.created_at|date:"M d, H:i" }}
+                        </small>
+                        {% if not notification.is_read %}
+                        <button class="btn btn-sm btn-link ms-2" onclick="markRead({{ notification.id }})">
+                            Mark as read
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center py-4">
+                    <p class="text-muted">No notifications yet.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-bar-chart"></i> Summary</h6>
+            </div>
+            <div class="card-body text-center">
+                <h1 class="mb-0">{{ unread_count }}</h1>
+                <p class="text-muted">Unread Notifications</p>
+                <button class="btn btn-outline-primary w-100 mt-3" onclick="markAllRead()">
+                    Mark All Read
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function markRead(id) {
+        fetch(`/notifications/mark-read/${id}/`, {
+            method: 'POST',
+            headers: {'X-CSRFToken': '{{ csrf_token }}'}
+        })
+        .then(() => location.reload())
+        .catch(err => console.error(err));
+    }
+    
+    function markAllRead() {
+        if (confirm('Mark all notifications as read?')) {
+            fetch('/notifications/mark-all-read/', {
+                method: 'POST',
+                headers: {'X-CSRFToken': '{{ csrf_token }}'}
+            })
+            .then(() => location.reload())
+            .catch(err => console.error(err));
+        }
+    }
+</script>
+{% endblock %}

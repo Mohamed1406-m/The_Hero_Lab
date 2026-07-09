@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Achievements - MuscleForge AI{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><i class="bi bi-trophy"></i> Achievements</h1>
+    <a href="{% url 'challenges:my_challenges' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> My Challenges
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-bar-chart"></i> Progress</h6>
+            </div>
+            <div class="card-body text-center">
+                <h1 class="mb-0">{{ xp.level }}</h1>
+                <p class="text-muted">Current Level</p>
+                <div class="progress mb-3" style="height: 20px;">
+                    <div class="progress-bar bg-warning" role="progressbar" 
+                         style="width: {{ xp.total_xp|add:0|div:100 }}%;"></div>
+                </div>
+                <p class="mb-0">{{ xp.total_xp }} XP</p>
+                <p class="small text-muted">{{ xp.total_xp|add:0|div:100 }} XP to next level</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-list-check"></i> All Achievements</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for achievement in achievements %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card {% if achievement.id in earned %}border-success{% endif %}">
+                            <div class="card-body text-center">
+                                <h2 class="mb-2">{{ achievement.icon }}</h2>
+                                <h6 class="card-title">{{ achievement.title }}</h6>
+                                <p class="card-text small">{{ achievement.description }}</p>
+                                <span class="badge bg-{{ achievement.badge_type }}">{{ achievement.xp_reward }} XP</span>
+                                {% if achievement.id in earned %}
+                                <div class="mt-2">
+                                    <small class="text-success">✓ Earned</small>
+                                </div>
+                                {% else %}
+                                <div class="mt-2">
+                                    <small class="text-muted">Locked</small>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,15 @@
+<footer>
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <span style="color:var(--text-muted)">
+            <strong style="color:var(--accent)"><i class="bi bi-lightning-charge-fill"></i> MuscleForge AI</strong>
+            &nbsp;— Your AI-powered fitness coach
+        </span>
+        <div class="d-flex gap-3" style="font-size:0.8rem">
+            <a href="{% url 'dashboard:home' %}" style="color:var(--text-muted);text-decoration:none">Dashboard</a>
+            <a href="{% url 'workout:exercises' %}" style="color:var(--text-muted);text-decoration:none">Exercises</a>
+            <a href="{% url 'nutrition:dashboard' %}" style="color:var(--text-muted);text-decoration:none">Nutrition</a>
+            <a href="{% url 'ai_coach:chat' %}" style="color:var(--text-muted);text-decoration:none">AI Coach</a>
+        </div>
+        <span>© 2024 MuscleForge AI</span>
+    </div>
+</footer>

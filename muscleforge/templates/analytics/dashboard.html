@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Analytics — MuscleForge AI{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1><i class="bi bi-bar-chart-line me-2" style="color:var(--accent)"></i>Analytics</h1>
+    <a href="{% url 'analytics:habits' %}" class="btn btn-primary btn-sm"><i class="bi bi-list-check me-1"></i>Habit Tracker</a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <div class="stat-card stat-card-purple">
+            <i class="bi bi-fire stat-icon"></i>
+            <div class="stat-label">Total Workouts</div>
+            <div class="stat-value" style="color:#a78bfa">{{ total_workouts }}</div>
+            <div class="stat-sub">Last 30 days</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat-card stat-card-green">
+            <i class="bi bi-moon-stars stat-icon"></i>
+            <div class="stat-label">Avg Sleep</div>
+            <div class="stat-value" style="color:#43e97b">{{ avg_sleep }}<span style="font-size:1rem;font-weight:500"> hrs</span></div>
+            <div class="stat-sub">Target: 7–8 hrs</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat-card stat-card-blue">
+            <i class="bi bi-egg-fried stat-icon"></i>
+            <div class="stat-label">Avg Calories</div>
+            <div class="stat-value" style="color:#43b8e9">{{ avg_calories }}</div>
+            <div class="stat-sub">Last 30 days</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat-card stat-card-orange">
+            <i class="bi bi-lightning-charge stat-icon"></i>
+            <div class="stat-label">Streak</div>
+            <div class="stat-value" style="color:#ffa94d">{{ streak|default:0 }}<span style="font-size:1rem;font-weight:500"> days</span></div>
+            <div class="stat-sub">Current streak</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-md-6">
+        <div class="card"><div class="card-header"><i class="bi bi-dumbbell"></i> Workout Activity</div><div class="card-body"><canvas id="workoutChart" height="120"></canvas></div></div>
+    </div>
+    <div class="col-md-6">
+        <div class="card"><div class="card-header"><i class="bi bi-fire"></i> Calorie Trend</div><div class="card-body"><canvas id="calorieChart" height="120"></canvas></div></div>
+    </div>
+</div>
+<div class="row g-3 mb-3">
+    <div class="col-md-6">
+        <div class="card"><div class="card-header"><i class="bi bi-graph-up"></i> Weight Trend</div><div class="card-body"><canvas id="weightChart" height="120"></canvas></div></div>
+    </div>
+    <div class="col-md-6">
+        <div class="card"><div class="card-header"><i class="bi bi-droplet-half"></i> Water Intake</div><div class="card-body"><canvas id="waterChart" height="120"></canvas></div></div>
+    </div>
+</div>
+<div class="card">
+    <div class="card-header"><i class="bi bi-moon-stars"></i> Sleep Hours</div>
+    <div class="card-body"><canvas id="sleepChart" height="80"></canvas></div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const co = { grid:{color:'rgba(255,255,255,0.04)'}, ticks:{color:'#6b6b80',font:{size:11}} };
+const opts = { responsive:true, plugins:{legend:{display:false}}, scales:{x:co,y:{...co,beginAtZero:true}} };
+
+new Chart('workoutChart', { type:'bar', data:{ labels:{{ workout_labels|default:"[]"|safe }}, datasets:[{ data:{{ workout_data|default:"[]"|safe }}, backgroundColor:'rgba(108,99,255,0.5)', borderColor:'rgba(108,99,255,1)', borderWidth:1, borderRadius:6 }] }, options:opts });
+new Chart('calorieChart', { type:'line', data:{ labels:{{ calorie_labels|default:"[]"|safe }}, datasets:[{ data:{{ calorie_trend|default:"[]"|safe }}, borderColor:'#ff6584', backgroundColor:'rgba(255,101,132,0.1)', tension:0.4, fill:true, pointRadius:3 }] }, options:opts });
+new Chart('weightChart', { type:'line', data:{ labels:{{ weight_labels|default:"[]"|safe }}, datasets:[{ data:{{ weight_trend|default:"[]"|safe }}, borderColor:'#43b8e9', backgroundColor:'rgba(67,184,233,0.1)', tension:0.4, fill:true, pointRadius:3 }] }, options:opts });
+new Chart('waterChart', { type:'bar', data:{ labels:{{ water_labels|default:"[]"|safe }}, datasets:[{ data:{{ water_data|default:"[]"|safe }}, backgroundColor:'rgba(67,184,233,0.4)', borderColor:'#43b8e9', borderWidth:1, borderRadius:6 }] }, options:opts });
+new Chart('sleepChart', { type:'line', data:{ labels:{{ sleep_labels|default:"[]"|safe }}, datasets:[{ data:{{ sleep_data|default:"[]"|safe }}, borderColor:'#a78bfa', backgroundColor:'rgba(167,139,250,0.1)', tension:0.4, fill:true, pointRadius:3 }] }, options:opts });
+</script>
+{% endblock %}

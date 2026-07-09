@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Meal History - MuscleForge AI{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><i class="bi bi-clock"></i> Meal History</h1>
+    <a href="{% url 'nutrition:dashboard' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h6 class="mb-0">Last 30 Days</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Meal Type</th>
+                        <th>Food</th>
+                        <th>Quantity</th>
+                        <th>Calories</th>
+                        <th>Protein</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                    <tr>
+                        <td>{{ log.date }}</td>
+                        <td><span class="badge bg-{{ log.meal_type }}">{{ log.get_meal_type_display }}</span></td>
+                        <td>{{ log.food.name }}</td>
+                        <td>{{ log.quantity }} g</td>
+                        <td>{{ log.calories }}</td>
+                        <td>{{ log.protein }} g</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

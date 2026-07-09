@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Workout Plan - MuscleForge AI{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">{{ plan.name }}</h1>
+    <a href="{% url 'workout:plans' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back
+    </a>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-info-circle"></i> Plan Details</h6>
+            </div>
+            <div class="card-body">
+                <p>{{ plan.description }}</p>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded">
+                            <h6 class="mb-1">Type</h6>
+                            <span class="badge bg-info">{{ plan.get_plan_type_display }}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded">
+                            <h6 class="mb-1">Difficulty</h6>
+                            <span class="badge bg-{{ plan.difficulty }}">{{ plan.get_difficulty_display }}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded">
+                            <h6 class="mb-1">Goal</h6>
+                            <span class="badge bg-success">{{ plan.get_goal_display }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-list-task"></i> Workout Days</h6>
+            </div>
+            <div class="card-body">
+                {% for day in days %}
+                <div class="mb-4">
+                    <h5 class="mb-3">Day {{ day.day_number }}: {{ day.name|default:"Workout" }}</h5>
+                    <p class="text-muted mb-3"><strong>Focus:</strong> {{ day.focus }}</p>
+                    
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Exercise</th>
+                                    <th>Sets</th>
+                                    <th>Reps</th>
+                                    <th>Rest</th>
+                                    <th>Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ex in day.exercises.all %}
+                                <tr>
+                                    <td>{{ ex.exercise.name }}</td>
+                                    <td>{{ ex.sets }}</td>
+                                    <td>{{ ex.reps }}</td>
+                                    <td>{{ ex.rest_seconds }} sec</td>
+                                    <td>{{ ex.notes }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-clock"></i> Plan Info</h6>
+            </div>
+            <div class="card-body">
+                <p class="mb-1"><strong>Duration:</strong> {{ plan.duration_weeks }} weeks</p>
+                <p class="mb-1"><strong>Days/Week:</strong> {{ plan.days_per_week }}</p>
+                <p class="mb-1"><strong>Created:</strong> {{ plan.created_at|date:"M d, Y" }}</p>
+                {% if plan.is_ai_generated %}
+                <p class="mb-1"><span class="badge bg-warning text-dark">AI Generated</span></p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-robot"></i> AI Coach</h6>
+            </div>
+            <div class="card-body">
+                <a href="{% url 'ai_coach:chat' %}" class="btn btn-primary w-100">
+                    <i class="bi bi-robot"></i> Ask AI Coach
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Workout Sessions - MuscleForge AI{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><i class="bi bi-list-task"></i> Workout Sessions</h1>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#sessionModal">
+        <i class="bi bi-plus-circle"></i> Log Workout
+    </button>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h6 class="mb-0">Recent Sessions</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Name</th>
+                        <th>Duration</th>
+                        <th>Calories</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for session in sessions %}
+                    <tr>
+                        <td>{{ session.date }}</td>
+                        <td>{{ session.name|default:"Workout" }}</td>
+                        <td>{{ session.duration_minutes }} min</td>
+                        <td>{{ session.calories_burned }}</td>
+                        <td>
+                            {% if session.is_completed %}
+                            <span class="badge bg-success">Completed</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Pending</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if not session.is_completed %}
+                            <button class="btn btn-sm btn-success" onclick="completeSession({{ session.id }})">
+                                <i class="bi bi-check-circle"></i> Complete
+                            </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="sessionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="{% url 'workout:sessions' %}">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title">Log Workout</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    {{ form.as_p }}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function completeSession(id) {
+        if (confirm('Mark this workout as complete?')) {
+            fetch(`/workout/sessions/${id}/complete/`, {
+                method: 'POST',
+                headers: {'X-CSRFToken': '{{ csrf_token }}'}
+            })
+            .then(() => location.reload())
+            .catch(err => console.error(err));
+        }
+    }
+</script>
+{% endblock %}

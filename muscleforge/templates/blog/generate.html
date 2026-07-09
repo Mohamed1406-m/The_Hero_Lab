@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}AI Article Generator — MuscleForge AI{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1><i class="bi bi-robot me-2" style="color:var(--accent)"></i>AI Article Generator</h1>
+    <a href="{% url 'blog:list' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i>Blog</a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card">
+            <div class="card-header"><i class="bi bi-lightning-charge"></i> Generate Article</div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-2">
+                        <label class="form-label">Topic</label>
+                        <input type="text" class="form-control" name="topic" placeholder="e.g. Best exercises for muscle gain, Indian diet for weight loss…">
+                        <div style="font-size:0.78rem;color:var(--text-muted);margin-top:0.4rem">Enter any fitness topic and AI will write a complete article for you.</div>
+                    </div>
+                    <div style="background:rgba(67,184,233,0.08);border:1px solid rgba(67,184,233,0.2);border-radius:10px;padding:0.75rem;font-size:0.8rem;color:#43b8e9;margin:1rem 0">
+                        <i class="bi bi-info-circle me-1"></i>AI-generated articles are for informational purposes only.
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100"><i class="bi bi-robot me-1"></i>Generate Article</button>
+                </form>
+            </div>
+        </div>
+
+        {% if post %}
+        <div class="card">
+            <div class="card-header"><i class="bi bi-file-earmark-text"></i> Generated Article</div>
+            <div class="card-body">
+                <div style="display:flex;gap:0.5rem;margin-bottom:1rem">
+                    <span class="badge bg-warning">AI Generated</span>
+                    <span class="badge bg-secondary">{{ post.author.username }}</span>
+                </div>
+                <h2 style="font-size:1.4rem;font-weight:800;margin-bottom:1.25rem">{{ post.title }}</h2>
+                <div style="font-size:0.875rem;line-height:1.8;color:var(--text-soft);margin-bottom:1.5rem">{{ post.content|linebreaks }}</div>
+                <a href="{% url 'blog:detail' post.slug %}" class="btn btn-primary btn-sm"><i class="bi bi-eye me-1"></i>View Full Article</a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,45 @@
+<aside class="sidebar">
+    <span class="sidebar-section-label">Main</span>
+    <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'dashboard:home' %}">
+        <i class="bi bi-speedometer2"></i> Dashboard
+    </a>
+
+    <span class="sidebar-section-label">Training</span>
+    <a class="nav-link {% if request.resolver_match.url_name == 'exercises' %}active{% endif %}" href="{% url 'workout:exercises' %}">
+        <i class="bi bi-dumbbell"></i> Exercises
+    </a>
+    <a class="nav-link {% if request.resolver_match.url_name == 'plans' %}active{% endif %}" href="{% url 'workout:plans' %}">
+        <i class="bi bi-list-task"></i> Workout Plans
+    </a>
+    <a class="nav-link {% if request.resolver_match.app_name == 'progress' %}active{% endif %}" href="{% url 'progress:dashboard' %}">
+        <i class="bi bi-graph-up-arrow"></i> Progress
+    </a>
+    <a class="nav-link {% if request.resolver_match.app_name == 'challenges' %}active{% endif %}" href="{% url 'challenges:list' %}">
+        <i class="bi bi-trophy"></i> Challenges
+    </a>
+
+    <span class="sidebar-section-label">Health</span>
+    <a class="nav-link {% if request.resolver_match.app_name == 'nutrition' %}active{% endif %}" href="{% url 'nutrition:dashboard' %}">
+        <i class="bi bi-egg-fried"></i> Nutrition
+    </a>
+    <a class="nav-link {% if request.resolver_match.app_name == 'analytics' %}active{% endif %}" href="{% url 'analytics:dashboard' %}">
+        <i class="bi bi-bar-chart-line"></i> Analytics
+    </a>
+
+    <span class="sidebar-section-label">Tools</span>
+    <a class="nav-link {% if request.resolver_match.app_name == 'ai_coach' %}active{% endif %}" href="{% url 'ai_coach:chat' %}">
+        <i class="bi bi-robot"></i> AI Coach
+    </a>
+    <a class="nav-link {% if request.resolver_match.app_name == 'blog' %}active{% endif %}" href="{% url 'blog:list' %}">
+        <i class="bi bi-journal-text"></i> Blog
+    </a>
+
+    {% if user_profile %}
+    <div class="sidebar-stats mt-3">
+        <h6><i class="bi bi-activity me-1"></i> Your Stats</h6>
+        <div class="stat-row"><span>BMI</span><strong>{{ user_profile.bmi|default:"—" }}</strong></div>
+        <div class="stat-row"><span>Calories</span><strong>{{ user_profile.daily_calorie_goal }} kcal</strong></div>
+        <div class="stat-row"><span>Protein</span><strong>{{ user_profile.daily_protein_goal }} g</strong></div>
+    </div>
+    {% endif %}
+</aside>

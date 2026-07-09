@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Challenges — MuscleForge AI{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1><i class="bi bi-trophy me-2" style="color:var(--accent)"></i>Challenges</h1>
+    <a href="{% url 'challenges:my_challenges' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-list-task me-1"></i>My Challenges</a>
+</div>
+
+<!-- Challenge Cards -->
+<div class="row g-3 mb-4">
+    {% for card in "30 Day,60 Day,90 Day"|split:"," %}{% endfor %}
+    <div class="col-md-4">
+        <div class="card h-100" style="border-color:rgba(255,169,77,0.3);background:linear-gradient(135deg,rgba(255,169,77,0.08),rgba(255,101,132,0.05))">
+            <div class="card-body" style="padding:1.5rem">
+                <div style="font-size:2.5rem;margin-bottom:1rem">🔥</div>
+                <div style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#ffa94d;margin-bottom:0.5rem">30 Day Challenge</div>
+                <h4 style="font-weight:800;margin-bottom:0.5rem">Consistency Challenge</h4>
+                <p style="color:var(--text-muted);font-size:0.875rem;margin-bottom:1.5rem">Complete at least 1 workout every day for 30 days straight!</p>
+                {% if 1 in joined_ids %}
+                <button class="btn btn-success w-100" disabled><i class="bi bi-check2 me-1"></i>Joined</button>
+                {% else %}
+                <a href="{% url 'challenges:join' 1 %}" class="btn w-100" style="background:linear-gradient(135deg,#ffa94d,#ff6584);color:#fff;font-weight:700">Join Now</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100" style="border-color:rgba(67,233,123,0.3);background:linear-gradient(135deg,rgba(67,233,123,0.08),rgba(67,184,233,0.05))">
+            <div class="card-body" style="padding:1.5rem">
+                <div style="font-size:2.5rem;margin-bottom:1rem">💧</div>
+                <div style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#43e97b;margin-bottom:0.5rem">60 Day Challenge</div>
+                <h4 style="font-weight:800;margin-bottom:0.5rem">Hydration Challenge</h4>
+                <p style="color:var(--text-muted);font-size:0.875rem;margin-bottom:1.5rem">Drink 3+ liters of water every day for 60 days!</p>
+                <button class="btn w-100" style="background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--text-muted);cursor:not-allowed" disabled>Coming Soon</button>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100" style="border-color:rgba(108,99,255,0.3);background:linear-gradient(135deg,rgba(108,99,255,0.08),rgba(139,92,246,0.05))">
+            <div class="card-body" style="padding:1.5rem">
+                <div style="font-size:2.5rem;margin-bottom:1rem">💪</div>
+                <div style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--accent);margin-bottom:0.5rem">90 Day Challenge</div>
+                <h4 style="font-weight:800;margin-bottom:0.5rem">Transformation Challenge</h4>
+                <p style="color:var(--text-muted);font-size:0.875rem;margin-bottom:1.5rem">Full 90-day fitness transformation with diet and workouts.</p>
+                <button class="btn w-100" style="background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--text-muted);cursor:not-allowed" disabled>Coming Soon</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Active Challenges -->
+{% if user_challenges %}
+<div class="card mb-4">
+    <div class="card-header"><i class="bi bi-person-check"></i> My Active Challenges</div>
+    <div class="card-body p-0">
+        {% for uc in user_challenges %}
+        <div style="padding:1rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+            <div style="flex:1;min-width:200px">
+                <div style="font-weight:600;margin-bottom:0.2rem">{{ uc.challenge.title }}</div>
+                <div style="font-size:0.78rem;color:var(--text-muted)">{{ uc.challenge.duration_days }} days · {{ uc.challenge.difficulty }}</div>
+            </div>
+            <div style="flex:2;min-width:160px">
+                <div style="display:flex;justify-content:space-between;font-size:0.78rem;color:var(--text-muted);margin-bottom:4px">
+                    <span>Progress</span><span>{{ uc.progress_percentage }}%</span>
+                </div>
+                <div class="progress" style="height:6px"><div class="progress-bar bg-warning" style="width:{{ uc.progress_percentage }}%"></div></div>
+            </div>
+            <span class="badge bg-primary">{{ uc.status|title }}</span>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Achievements -->
+<div class="card">
+    <div class="card-header"><i class="bi bi-award"></i> Achievements</div>
+    <div class="card-body">
+        <div class="row g-3">
+            {% for achievement in achievements %}
+            <div class="col-6 col-md-3">
+                <div style="text-align:center;padding:1.25rem;background:{% if achievement.id in earned %}rgba(67,233,123,0.08){% else %}var(--bg-surface){% endif %};border:1px solid {% if achievement.id in earned %}rgba(67,233,123,0.3){% else %}var(--border){% endif %};border-radius:12px;transition:all 0.2s" onmouseover="this.style.borderColor='var(--border-accent)'" onmouseout="this.style.borderColor='{% if achievement.id in earned %}rgba(67,233,123,0.3){% else %}var(--border){% endif %}'">
+                    <div style="font-size:2rem;margin-bottom:0.5rem">{{ achievement.icon }}</div>
+                    <div style="font-size:0.85rem;font-weight:700;margin-bottom:0.25rem">{{ achievement.title }}</div>
+                    <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.75rem">{{ achievement.description }}</div>
+                    <span class="badge bg-{{ achievement.badge_type }}">{{ achievement.xp_reward }} XP</span>
+                    {% if achievement.id in earned %}<div style="font-size:0.72rem;color:#43e97b;margin-top:0.5rem;font-weight:700">✓ Earned</div>{% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

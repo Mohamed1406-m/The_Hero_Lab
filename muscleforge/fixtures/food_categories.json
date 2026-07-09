@@ -1,0 +1,56 @@
+[
+  {
+    "model": "nutrition.foodcategory",
+    "pk": 1,
+    "fields": {
+      "name": "Grains",
+      "description": "Rice, roti, bread, pasta",
+      "icon": "🌾"
+    }
+  },
+  {
+    "model": "nutrition.foodcategory",
+    "pk": 2,
+    "fields": {
+      "name": "Protein",
+      "description": "Chicken, fish, eggs, legumes",
+      "icon": "🍗"
+    }
+  },
+  {
+    "model": "nutrition.foodcategory",
+    "pk": 3,
+    "fields": {
+      "name": "Dairy",
+      "description": "Milk, yogurt, cheese",
+      "icon": "🥛"
+    }
+  },
+  {
+    "model": "nutrition.foodcategory",
+    "pk": 4,
+    "fields": {
+      "name": "Fruits",
+      "description": "Fresh fruits",
+      "icon": "🍎"
+    }
+  },
+  {
+    "model": "nutrition.foodcategory",
+    "pk": 5,
+    "fields": {
+      "name": "Vegetables",
+      "description": "Vegetables and greens",
+      "icon": "🥦"
+    }
+  },
+  {
+    "model": "nutrition.foodcategory",
+    "pk": 6,
+    "fields": {
+      "name": "Snacks",
+      "description": "Healthy snacks",
+      "icon": "🥜"
+    }
+  }
+]

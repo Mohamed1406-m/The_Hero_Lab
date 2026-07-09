@@ -1,0 +1,237 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Progress Tracker - MuscleForge AI{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><i class="bi bi-graph-up"></i> Progress Tracker</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#weightModal">
+            <i class="bi bi-plus-circle"></i> Log Weight
+        </button>
+        <button class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#measurementModal">
+            <i class="bi bi-plus-circle"></i> Add Measurements
+        </button>
+    </div>
+</div>
+
+<!-- Stats -->
+<div class="row mb-4">
+    <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card bg-primary text-white h-100">
+            <div class="card-body">
+                <h6 class="card-title">Current Weight</h6>
+                <h3 class="mb-0">{{ latest_measurement.weight|default:"-" }} kg</h3>
+                <small>Goal: {{ user_profile.goal_weight|default:"-" }} kg</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card bg-success text-white h-100">
+            <div class="card-body">
+                <h6 class="card-title">Waist</h6>
+                <h3 class="mb-0">{{ latest_measurement.waist|default:"-" }} cm</h3>
+                <small>Target: < 90 cm</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card bg-info text-white h-100">
+            <div class="card-body">
+                <h6 class="card-title">Chest</h6>
+                <h3 class="mb-0">{{ latest_measurement.chest|default:"-" }} cm</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card bg-warning text-white h-100">
+            <div class="card-body">
+                <h6 class="card-title">Arms</h6>
+                <h3 class="mb-0">{{ latest_measurement.arms|default:"-" }} cm</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts -->
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-graph-up"></i> Weight Progress
+            </div>
+            <div class="card-body">
+                <canvas id="weightChart" height="100"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-ruler"></i> Measurements
+            </div>
+            <div class="card-body">
+                {% if latest_measurement %}
+                <table class="table">
+                    <tr><th>Waist</th><td>{{ latest_measurement.waist }} cm</td></tr>
+                    <tr><th>Chest</th><td>{{ latest_measurement.chest }} cm</td></tr>
+                    <tr><th>Arms</th><td>{{ latest_measurement.arms }} cm</td></tr>
+                    <tr><th>Thighs</th><td>{{ latest_measurement.thighs }} cm</td></tr>
+                    <tr><th>Calves</th><td>{{ latest_measurement.calves }} cm</td></tr>
+                </table>
+                {% else %}
+                <p class="text-muted">No measurements yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Progress Photos -->
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="bi bi-image"></i> Progress Photos
+    </div>
+    <div class="card-body">
+        <div class="row g-3">
+            {% for photo in photos %}
+            <div class="col-md-4">
+                <div class="card">
+                    <img src="{{ photo.photo.url }}" class="card-img-top" alt="{{ photo.get_angle_display }}">
+                    <div class="card-body">
+                        <h6 class="card-title">{{ photo.get_angle_display }} - {{ photo.date }}</h6>
+                        <p class="card-text small">{{ photo.notes }}</p>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center">
+                <p class="text-muted">No progress photos yet. Upload your first one!</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Weight History -->
+<div class="card">
+    <div class="card-header">
+        <i class="bi bi-list-task"></i> Weight History
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Weight</th>
+                        <th>Change</th>
+                        <th>Notes</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in weight_logs %}
+                    <tr>
+                        <td>{{ log.date }}</td>
+                        <td>{{ log.weight }} kg</td>
+                        <td>
+                            {% if forloop.counter0 > 0 %}
+                            {% with prev=weight_logs|slice:":forloop.counter0"|last %}
+                            {% with diff=log.weight|add:0|sub:prev.weight %}
+                            {% if diff > 0 %}+{% endif %}{{ diff|floatformat:1 }}
+                            {% endwith %}
+                            {% endwith %}
+                            {% endif %}
+                        </td>
+                        <td>{{ log.notes }}</td>
+                        <td>
+                            <button class="btn btn-sm btn-danger" onclick="deleteWeight({{ log.id }})">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modals -->
+<div class="modal fade" id="weightModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="{% url 'progress:add_weight' %}">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title">Log Weight</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    {{ weight_form.as_p }}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="measurementModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="{% url 'progress:add_measurement' %}">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Measurements</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    {{ measurement_form.as_p }}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Weight Chart
+    const weightCtx = document.getElementById('weightChart').getContext('2d');
+    new Chart(weightCtx, {
+        type: 'line',
+        data: {
+            labels: {{ weight_data|json_script:"weight-data" }},
+            datasets: [{
+                label: 'Weight (kg)',
+                data: {{ weight_data|json_script:"weight-data" }},
+                borderColor: 'rgba(255, 99, 132, 1)',
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true
+        }
+    });
+    
+    function deleteWeight(id) {
+        if (confirm('Delete this weight log?')) {
+            fetch(`/progress/delete-weight/${id}/`, {
+                method: 'POST',
+                headers: {'X-CSRFToken': '{{ csrf_token }}'}
+            })
+            .then(() => location.reload())
+            .catch(err => console.error(err));
+        }
+    }
+</script>
+{% endblock %}

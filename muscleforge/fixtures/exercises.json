@@ -1,0 +1,162 @@
+[
+  {
+    "model": "workout.exercise",
+    "pk": 1,
+    "fields": {
+      "name": "Push-ups",
+      "slug": "push-ups",
+      "description": "A classic bodyweight exercise that targets the chest, shoulders, and triceps.",
+      "instructions": "1. Start in a plank position with hands slightly wider than shoulder-width\n2. Lower your body until chest touches the floor\n3. Push back up to the starting position\n4. Keep core tight throughout the movement",
+      "difficulty": "beginner",
+      "category": "strength",
+      "equipment": "bodyweight",
+      "calories_per_minute": 7.0,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "workout.exercise",
+    "pk": 2,
+    "fields": {
+      "name": "Squats",
+      "slug": "squats",
+      "description": "A compound movement that works the entire lower body.",
+      "instructions": "1. Stand with feet shoulder-width apart\n2. Lower your hips by bending knees and pushing hips back\n3. Keep chest up and knees behind toes\n4. Push through heels to return to standing",
+      "difficulty": "beginner",
+      "category": "strength",
+      "equipment": "bodyweight",
+      "calories_per_minute": 8.0,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "workout.exercise",
+    "pk": 3,
+    "fields": {
+      "name": "Plank",
+      "slug": "plank",
+      "description": "Core exercise that strengthens the entire core muscles.",
+      "instructions": "1. Start in a forearm plank position\n2. Keep body in a straight line from head to heels\n3. Engage core and hold the position\n4. Don't let hips sag or rise",
+      "difficulty": "beginner",
+      "category": "strength",
+      "equipment": "bodyweight",
+      "calories_per_minute": 4.0,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "workout.exercise",
+    "pk": 4,
+    "fields": {
+      "name": "Lunges",
+      "slug": "lunges",
+      "description": "Single-leg exercise that targets quads, glutes, and hamstrings.",
+      "instructions": "1. Stand tall with feet together\n2. Step forward with one leg and lower hips\n3. Keep front knee behind toes\n4. Push through front heel to return\n5. Repeat on other leg",
+      "difficulty": "beginner",
+      "category": "strength",
+      "equipment": "bodyweight",
+      "calories_per_minute": 7.5,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "workout.exercise",
+    "pk": 5,
+    "fields": {
+      "name": "Burpees",
+      "slug": "burpees",
+      "description": "Full-body exercise combining push-up and jump squat.",
+      "instructions": "1. Start standing\n2. Drop into a plank position\n3. Do a push-up\n4. Jump feet forward\n5. Jump up with hands overhead",
+      "difficulty": "advanced",
+      "category": "hiit",
+      "equipment": "bodyweight",
+      "calories_per_minute": 10.0,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "workout.exercise",
+    "pk": 6,
+    "fields": {
+      "name": "Mountain Climbers",
+      "slug": "mountain-climbers",
+      "description": "Dynamic core and cardio exercise.",
+      "instructions": "1. Start in plank position\n2. Drive one knee toward chest\n3. Quickly switch legs\n4. Keep core tight and back flat",
+      "difficulty": "intermediate",
+      "category": "cardio",
+      "equipment": "bodyweight",
+      "calories_per_minute": 9.0,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "workout.exercise",
+    "pk": 7,
+    "fields": {
+      "name": "Jumping Jacks",
+      "slug": "jumping-jacks",
+      "description": "Classic cardio exercise that works the entire body.",
+      "instructions": "1. Stand with feet together and arms at sides\n2. Jump while spreading legs and raising arms\n3. Jump again to return to starting position\n4. Keep movements smooth and controlled",
+      "difficulty": "beginner",
+      "category": "cardio",
+      "equipment": "bodyweight",
+      "calories_per_minute": 8.0,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "workout.exercise",
+    "pk": 8,
+    "fields": {
+      "name": "Glute Bridge",
+      "slug": "glute-bridge",
+      "description": "Targets glutes and hamstrings.",
+      "instructions": "1. Lie on back with knees bent and feet flat\n2. Drive through heels to lift hips\n3. Squeeze glutes at the top\n4. Lower back down with control",
+      "difficulty": "beginner",
+      "category": "strength",
+      "equipment": "bodyweight",
+      "calories_per_minute": 5.0,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "workout.exercise",
+    "pk": 9,
+    "fields": {
+      "name": "Side Plank",
+      "slug": "side-plank",
+      "description": "Targets obliques and core stability.",
+      "instructions": "1. Lie on side with feet stacked\n2. Lift hips off ground\n3. Keep body in straight line\n4. Hold the position",
+      "difficulty": "intermediate",
+      "category": "strength",
+      "equipment": "bodyweight",
+      "calories_per_minute": 4.5,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "workout.exercise",
+    "pk": 10,
+    "fields": {
+      "name": "Walking Lunges",
+      "slug": "walking-lunges",
+      "description": "Dynamic lunge variation that improves balance and coordination.",
+      "instructions": "1. Stand tall with hands on hips\n2. Step forward with one leg and lower hips\n3. Push through front heel to step forward\n4. Repeat with other leg",
+      "difficulty": "intermediate",
+      "category": "strength",
+      "equipment": "bodyweight",
+      "calories_per_minute": 8.5,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  }
+]

@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Blog — MuscleForge AI{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1><i class="bi bi-journal-text me-2" style="color:var(--accent)"></i>Fitness Blog</h1>
+    <a href="{% url 'blog:generate' %}" class="btn btn-primary btn-sm"><i class="bi bi-robot me-1"></i>AI Generate Article</a>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body" style="padding:1rem 1.25rem;display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center">
+        <span style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-right:0.5rem">Filter:</span>
+        <a href="{% url 'blog:list' %}" style="padding:0.35rem 0.9rem;border-radius:20px;font-size:0.8rem;font-weight:600;text-decoration:none;transition:all 0.15s;{% if not request.GET.category %}background:rgba(108,99,255,0.2);color:var(--accent);border:1px solid rgba(108,99,255,0.4){% else %}background:transparent;color:var(--text-muted);border:1px solid var(--border){% endif %}">All</a>
+        {% for category in categories %}
+        <a href="?category={{ category.slug }}" style="padding:0.35rem 0.9rem;border-radius:20px;font-size:0.8rem;font-weight:600;text-decoration:none;transition:all 0.15s;background:transparent;color:var(--text-muted);border:1px solid var(--border)">{{ category.name }}</a>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="row g-3">
+    {% for post in posts %}
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100" style="transition:transform 0.2s,box-shadow 0.2s" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 30px rgba(0,0,0,0.3)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+            {% if post.featured_image %}
+            <img src="{{ post.featured_image.url }}" style="width:100%;height:180px;object-fit:cover;border-radius:12px 12px 0 0" alt="{{ post.title }}">
+            {% else %}
+            <div style="height:120px;background:linear-gradient(135deg,rgba(108,99,255,0.2),rgba(255,101,132,0.1));border-radius:12px 12px 0 0;display:flex;align-items:center;justify-content:center;font-size:2.5rem">📝</div>
+            {% endif %}
+            <div class="card-body" style="display:flex;flex-direction:column">
+                <div style="margin-bottom:0.75rem">
+                    <span class="badge bg-primary">{{ post.category.name|default:"General" }}</span>
+                    {% if post.is_ai_generated %}<span class="badge bg-warning ms-1">AI</span>{% endif %}
+                </div>
+                <h5 style="font-weight:700;font-size:0.95rem;margin-bottom:0.5rem;line-height:1.4">{{ post.title }}</h5>
+                <p style="color:var(--text-muted);font-size:0.8rem;flex:1;margin-bottom:1rem">{{ post.excerpt|default:post.content|truncatechars:120 }}</p>
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                    <span style="font-size:0.75rem;color:var(--text-muted)"><i class="bi bi-person me-1"></i>{{ post.author.username }} · {{ post.created_at|date:"M d" }}</span>
+                    <a href="{% url 'blog:detail' post.slug %}" class="btn btn-outline-secondary btn-sm">Read →</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center" style="padding:4rem;color:var(--text-muted)">
+        <i class="bi bi-journal-x" style="font-size:3rem;display:block;margin-bottom:1rem;opacity:0.4"></i>
+        No articles yet. <a href="{% url 'blog:generate' %}" style="color:var(--accent)">Generate one with AI</a>!
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Profile — MuscleForge AI{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Profile Settings</h1>
+    <a href="{% url 'accounts:change_password' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-shield-lock me-1"></i>Change Password</a>
+</div>
+
+<div class="row g-4">
+    <!-- Left: Avatar + Quick Stats -->
+    <div class="col-lg-3">
+        <div class="card text-center">
+            <div class="card-body" style="padding:2rem 1.25rem">
+                <div style="position:relative;display:inline-block;margin-bottom:1rem">
+                    <img src="{{ profile.avatar_url }}" style="width:96px;height:96px;border-radius:50%;border:3px solid var(--accent);object-fit:cover" alt="">
+                    <span style="position:absolute;bottom:4px;right:4px;width:14px;height:14px;background:#43e97b;border-radius:50%;border:2px solid var(--bg-card)"></span>
+                </div>
+                <h5 style="font-weight:700;margin-bottom:0.25rem">{{ user.full_name }}</h5>
+                <p style="color:var(--text-muted);font-size:0.8rem;margin-bottom:1.5rem">{{ user.email }}</p>
+                <div class="row g-2">
+                    <div class="col-6">
+                        <div style="background:rgba(108,99,255,0.1);border:1px solid rgba(108,99,255,0.2);border-radius:10px;padding:0.75rem">
+                            <div style="font-size:1.1rem;font-weight:800;color:var(--accent)">{{ profile.bmi|default:"—" }}</div>
+                            <div style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px">BMI</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div style="background:rgba(67,233,123,0.1);border:1px solid rgba(67,233,123,0.2);border-radius:10px;padding:0.75rem">
+                            <div style="font-size:0.85rem;font-weight:700;color:#43e97b">{{ profile.get_goal_display|default:"—" }}</div>
+                            <div style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px">Goal</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><i class="bi bi-activity"></i> Quick Stats</div>
+            <div class="card-body" style="padding:1rem">
+                <div style="display:flex;flex-direction:column;gap:0.6rem">
+                    <div style="display:flex;justify-content:space-between;font-size:0.85rem;padding:0.4rem 0;border-bottom:1px solid var(--border)">
+                        <span style="color:var(--text-muted)">Age</span><strong>{{ profile.age|default:"—" }}</strong>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;font-size:0.85rem;padding:0.4rem 0;border-bottom:1px solid var(--border)">
+                        <span style="color:var(--text-muted)">Gender</span><strong>{{ profile.get_gender_display|default:"—" }}</strong>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;font-size:0.85rem;padding:0.4rem 0;border-bottom:1px solid var(--border)">
+                        <span style="color:var(--text-muted)">Height</span><strong>{{ profile.height|default:"—" }} cm</strong>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;font-size:0.85rem;padding:0.4rem 0;border-bottom:1px solid var(--border)">
+                        <span style="color:var(--text-muted)">Weight</span><strong>{{ profile.weight|default:"—" }} kg</strong>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;font-size:0.85rem;padding:0.4rem 0;border-bottom:1px solid var(--border)">
+                        <span style="color:var(--text-muted)">Activity</span><strong>{{ profile.get_activity_level_display|default:"—" }}</strong>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;font-size:0.85rem;padding:0.4rem 0">
+                        <span style="color:var(--text-muted)">Diet</span><strong>{{ profile.get_diet_type_display|default:"—" }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right: Forms -->
+    <div class="col-lg-9">
+        <!-- Personal Info -->
+        <div class="card">
+            <div class="card-header"><i class="bi bi-person"></i> Personal Information</div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data" novalidate>
+                    {% csrf_token %}
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">First Name</label>{{ form.first_name }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Last Name</label>{{ form.last_name }}
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label">Avatar</label>{{ form.avatar }}
+                    </div>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-check2 me-1"></i>Update Profile</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Goals & Preferences -->
+        <div class="card">
+            <div class="card-header"><i class="bi bi-sliders"></i> Goals & Preferences</div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4"><label class="form-label">Age</label>{{ form.age }}</div>
+                        <div class="col-md-4"><label class="form-label">Gender</label>{{ form.gender }}</div>
+                        <div class="col-md-4"><label class="form-label">Height (cm)</label>{{ form.height }}</div>
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4"><label class="form-label">Current Weight (kg)</label>{{ form.weight }}</div>
+                        <div class="col-md-4"><label class="form-label">Goal Weight (kg)</label>{{ form.goal_weight }}</div>
+                        <div class="col-md-4"><label class="form-label">Goal</label>{{ form.goal }}</div>
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4"><label class="form-label">Activity Level</label>{{ form.activity_level }}</div>
+                        <div class="col-md-4"><label class="form-label">Diet Type</label>{{ form.diet_type }}</div>
+                        <div class="col-md-4"><label class="form-label">Experience</label>{{ form.workout_experience }}</div>
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4"><label class="form-label">Daily Calories</label>{{ form.daily_calorie_goal }}</div>
+                        <div class="col-md-4"><label class="form-label">Daily Protein (g)</label>{{ form.daily_protein_goal }}</div>
+                        <div class="col-md-4"><label class="form-label">Daily Water (L)</label>{{ form.daily_water_goal }}</div>
+                    </div>
+                    <div class="mb-4"><label class="form-label">Medical Conditions</label>{{ form.medical_conditions }}</div>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-check2 me-1"></i>Save Settings</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Notification Settings - MuscleForge AI{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><i class="bi bi-gear"></i> Notification Settings</h1>
+    <a href="{% url 'notifications:list' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-bell"></i> Reminders</h6>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="workout_reminder" name="workout_reminder" {% if settings.workout_reminder %}checked{% endif %}>
+                            <label class="form-check-label" for="workout_reminder">Workout Reminder</label>
+                        </div>
+                        <div class="input-group mt-2">
+                            <span class="input-group-text">Time</span>
+                            <input type="time" class="form-control" name="workout_time" value="{{ settings.workout_time|default:'08:00' }}">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="water_reminder" name="water_reminder" {% if settings.water_reminder %}checked{% endif %}>
+                            <label class="form-check-label" for="water_reminder">Water Reminder</label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="meal_reminder" name="meal_reminder" {% if settings.meal_reminder %}checked{% endif %}>
+                            <label class="form-check-label" for="meal_reminder">Meal Reminder</label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="sleep_reminder" name="sleep_reminder" {% if settings.sleep_reminder %}checked{% endif %}>
+                            <label class="form-check-label" for="sleep_reminder">Sleep Reminder</label>
+                        </div>
+                        <div class="input-group mt-2">
+                            <span class="input-group-text">Time</span>
+                            <input type="time" class="form-control" name="sleep_time" value="{{ settings.sleep_time|default:'22:00' }}">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="email_notifications" name="email_notifications" {% if settings.email_notifications %}checked{% endif %}>
+                            <label class="form-check-label" for="email_notifications">Email Notifications</label>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">Save Settings</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

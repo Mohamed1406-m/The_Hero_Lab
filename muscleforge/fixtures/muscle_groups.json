@@ -1,0 +1,66 @@
+[
+  {
+    "model": "workout.musclegroup",
+    "pk": 1,
+    "fields": {
+      "name": "Chest",
+      "description": "Pectoral muscles"
+    }
+  },
+  {
+    "model": "workout.musclegroup",
+    "pk": 2,
+    "fields": {
+      "name": "Back",
+      "description": "Latissimus dorsi and upper back"
+    }
+  },
+  {
+    "model": "workout.musclegroup",
+    "pk": 3,
+    "fields": {
+      "name": "Shoulders",
+      "description": "Deltoids and rotator cuff"
+    }
+  },
+  {
+    "model": "workout.musclegroup",
+    "pk": 4,
+    "fields": {
+      "name": "Biceps",
+      "description": "Front upper arm"
+    }
+  },
+  {
+    "model": "workout.musclegroup",
+    "pk": 5,
+    "fields": {
+      "name": "Triceps",
+      "description": "Back upper arm"
+    }
+  },
+  {
+    "model": "workout.musclegroup",
+    "pk": 6,
+    "fields": {
+      "name": "Legs",
+      "description": "Quadriceps, hamstrings, calves"
+    }
+  },
+  {
+    "model": "workout.musclegroup",
+    "pk": 7,
+    "fields": {
+      "name": "Abs",
+      "description": "Abdominal muscles"
+    }
+  },
+  {
+    "model": "workout.musclegroup",
+    "pk": 8,
+    "fields": {
+      "name": "Forearms",
+      "description": "Forearm muscles"
+    }
+  }
+]

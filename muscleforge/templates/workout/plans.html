@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Workout Plans - MuscleForge AI{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><i class="bi bi-list-task"></i> Workout Plans</h1>
+    <a href="{% url 'workout:generate_plan' %}" class="btn btn-primary">
+        <i class="bi bi-robot"></i> AI Generate Plan
+    </a>
+</div>
+
+<!-- My Plans -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h6 class="mb-0"><i class="bi bi-person"></i> My Plans</h6>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            {% for plan in my_plans %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ plan.name }}</h5>
+                        <p class="card-text small">{{ plan.description|truncatechars:100 }}</p>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="badge bg-{{ plan.difficulty }}">{{ plan.get_difficulty_display }}</span>
+                            <span class="badge bg-info">{{ plan.get_plan_type_display }}</span>
+                        </div>
+                        <p class="text-muted small">
+                            <i class="bi bi-clock"></i> {{ plan.duration_weeks }} weeks | 
+                            <i class="bi bi-calendar"></i> {{ plan.days_per_week }} days/week
+                        </p>
+                        <a href="{% url 'workout:plan_detail' plan.pk %}" class="btn btn-outline-primary w-100">
+                            View Plan
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-4">
+                <p class="text-muted">No workout plans yet. <a href="{% url 'workout:generate_plan' %}">Create one</a>!</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Public Plans -->
+<div class="card">
+    <div class="card-header">
+        <h6 class="mb-0"><i class="bi bi-share"></i> Public Plans</h6>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            {% for plan in public_plans %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ plan.name }}</h5>
+                        <p class="card-text small">{{ plan.description|truncatechars:100 }}</p>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="badge bg-{{ plan.difficulty }}">{{ plan.get_difficulty_display }}</span>
+                            <span class="badge bg-info">{{ plan.get_plan_type_display }}</span>
+                        </div>
+                        <a href="{% url 'workout:plan_detail' plan.pk %}" class="btn btn-outline-secondary w-100">
+                            View Plan
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-4">
+                <p class="text-muted">No public plans available yet.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

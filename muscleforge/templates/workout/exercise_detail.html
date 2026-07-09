@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ exercise.name }} - MuscleForge AI{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">{{ exercise.name }}</h1>
+    <a href="{% url 'workout:exercises' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-body">
+                {% if exercise.image %}
+                <img src="{{ exercise.image.url }}" class="img-fluid rounded mb-3" alt="{{ exercise.name }}">
+                {% endif %}
+                
+                <div class="mb-3">
+                    <h5 class="mb-3">Description</h5>
+                    <p>{{ exercise.description }}</p>
+                </div>
+                
+                <div class="mb-3">
+                    <h5 class="mb-3">Instructions</h5>
+                    <div class="bg-light p-3 rounded">{{ exercise.instructions|linebreaks }}</div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-6">
+                        <div class="p-3 bg-light rounded">
+                            <h6 class="mb-1">Difficulty</h6>
+                            <span class="badge bg-{{ exercise.difficulty }}">{{ exercise.get_difficulty_display }}</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-3 bg-light rounded">
+                            <h6 class="mb-1">Category</h6>
+                            {{ exercise.get_category_display }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-info-circle"></i> Exercise Details</h6>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <tr>
+                        <th width="40%">Equipment</th>
+                        <td>{{ exercise.get_equipment_display }}</td>
+                    </tr>
+                    <tr>
+                        <th>Calories/min</th>
+                        <td>{{ exercise.calories_per_minute }} kcal</td>
+                    </tr>
+                    <tr>
+                        <th>Muscles Worked</th>
+                        <td>
+                            {% for muscle in exercise.muscles_worked.all %}
+                            <span class="badge bg-primary me-1 mb-1">{{ muscle.name }}</span>
+                            {% empty %}
+                            <span class="text-muted">Not specified</span>
+                            {% endfor %}
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        
+        {% if exercise.video_url %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-play-circle"></i> Video Tutorial</h6>
+            </div>
+            <div class="card-body">
+                <div class="ratio ratio-16x9">
+                    <iframe src="{{ exercise.video_url }}" allowfullscreen></iframe>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-list-task"></i> Add to Workout</h6>
+            </div>
+            <div class="card-body">
+                <form id="addExerciseForm">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Sets</label>
+                            <input type="number" class="form-control" value="3" min="1" max="10">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Reps</label>
+                            <input type="text" class="form-control" value="10-12">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Rest (sec)</label>
+                            <input type="number" class="form-control" value="60" min="15" max="300">
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-primary w-100" onclick="addToWorkout()">
+                        <i class="bi bi-plus-circle"></i> Add to Workout
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function addToWorkout() {
+        const form = document.getElementById('addExerciseForm');
+        const formData = new FormData(form);
+        
+        // In a real app, this would add to a workout plan
+        alert('Exercise added to your workout! (Demo)');
+    }
+</script>
+{% endblock %}

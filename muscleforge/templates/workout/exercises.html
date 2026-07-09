@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Workout Exercises - MuscleForge AI{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><i class="bi bi-dumbbell"></i> Exercises</h1>
+</div>
+
+<!-- Filters -->
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label">Difficulty</label>
+                <select class="form-select" id="difficultyFilter">
+                    <option value="">All</option>
+                    {% for val, label in difficulty_choices %}
+                    <option value="{{ val }}">{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Category</label>
+                <select class="form-select" id="categoryFilter">
+                    <option value="">All</option>
+                    {% for val, label in category_choices %}
+                    <option value="{{ val }}">{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Equipment</label>
+                <select class="form-select" id="equipmentFilter">
+                    <option value="">All</option>
+                    {% for val, label in equipment_choices %}
+                    <option value="{{ val }}">{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Search</label>
+                <input type="text" class="form-control" id="searchInput" placeholder="Search exercises...">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Exercises Grid -->
+<div class="row" id="exercisesGrid">
+    {% for exercise in exercises %}
+    <div class="col-md-4 mb-4 exercise-card" data-difficulty="{{ exercise.difficulty }}" 
+         data-category="{{ exercise.category }}" data-equipment="{{ exercise.equipment }}">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">{{ exercise.name }}</h5>
+                <p class="card-text small text-muted">{{ exercise.get_category_display }}</p>
+                <p class="card-text">{{ exercise.description|truncatechars:100 }}</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="badge bg-{{ exercise.difficulty|default:'secondary' }}">{{ exercise.get_difficulty_display }}</span>
+                    <a href="{% url 'workout:exercise_detail' exercise.slug %}" class="btn btn-sm btn-outline-primary">
+                        View Details
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-5">
+        <p class="text-muted">No exercises found. Try different filters.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function filterExercises() {
+        const difficulty = document.getElementById('difficultyFilter').value;
+        const category = document.getElementById('categoryFilter').value;
+        const equipment = document.getElementById('equipmentFilter').value;
+        const search = document.getElementById('searchInput').value.toLowerCase();
+        
+        const cards = document.querySelectorAll('.exercise-card');
+        cards.forEach(card => {
+            const diff = card.dataset.difficulty;
+            const cat = card.dataset.category;
+            const eq = card.dataset.equipment;
+            const text = card.innerText.toLowerCase();
+            
+            const matchDiff = !difficulty || diff === difficulty;
+            const matchCat = !category || cat === category;
+            const matchEq = !equipment || eq === equipment;
+            const matchSearch = !search || text.includes(search);
+            
+            card.style.display = (matchDiff && matchCat && matchEq && matchSearch) ? 'block' : 'none';
+        });
+    }
+    
+    document.getElementById('difficultyFilter').addEventListener('change', filterExercises);
+    document.getElementById('categoryFilter').addEventListener('change', filterExercises);
+    document.getElementById('equipmentFilter').addEventListener('change', filterExercises);
+    document.getElementById('searchInput').addEventListener('input', filterExercises);
+</script>
+{% endblock %}

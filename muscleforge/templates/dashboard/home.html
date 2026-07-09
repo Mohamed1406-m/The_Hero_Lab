@@ -1,0 +1,209 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard — MuscleForge AI{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="bi bi-speedometer2 me-2" style="color:var(--accent)"></i>Dashboard</h1>
+    <a href="{% url 'analytics:dashboard' %}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-bar-chart-line me-1"></i> Analytics
+    </a>
+</div>
+
+<!-- Stat Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <div class="stat-card stat-card-purple">
+            <i class="bi bi-speedometer stat-icon"></i>
+            <div class="stat-label">Current Weight</div>
+            <div class="stat-value" style="color:#a78bfa">{{ latest_weight|default:"—" }}<span style="font-size:1rem;font-weight:500"> kg</span></div>
+            <div class="stat-sub">Goal: {{ goal_weight|default:"—" }} kg</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat-card stat-card-green">
+            <i class="bi bi-heart-pulse stat-icon"></i>
+            <div class="stat-label">BMI</div>
+            <div class="stat-value" style="color:#43e97b">{{ bmi|default:"—" }}</div>
+            <div class="stat-sub">{{ bmi_category|default:"—" }}</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat-card stat-card-blue">
+            <i class="bi bi-fire stat-icon"></i>
+            <div class="stat-label">Today's Calories</div>
+            <div class="stat-value" style="color:#43b8e9">{{ today_calories }}</div>
+            <div class="stat-sub">Goal: {{ calorie_goal }} kcal</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat-card stat-card-orange">
+            <i class="bi bi-egg-fried stat-icon"></i>
+            <div class="stat-label">Protein</div>
+            <div class="stat-value" style="color:#ffa94d">{{ today_protein }}<span style="font-size:1rem;font-weight:500"> g</span></div>
+            <div class="stat-sub">Goal: {{ protein_goal }} g</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <!-- Charts Column -->
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header"><i class="bi bi-bar-chart-fill"></i> Calorie Intake — Last 7 Days</div>
+            <div class="card-body"><canvas id="calorieChart" height="110"></canvas></div>
+        </div>
+        <div class="card">
+            <div class="card-header"><i class="bi bi-graph-up"></i> Weight Progress — Last 30 Days</div>
+            <div class="card-body"><canvas id="weightChart" height="110"></canvas></div>
+        </div>
+    </div>
+
+    <!-- Side Column -->
+    <div class="col-lg-4">
+        <!-- Water -->
+        <div class="card">
+            <div class="card-header"><i class="bi bi-droplet-half"></i> Water Intake</div>
+            <div class="card-body text-center">
+                <div style="font-size:2.5rem;font-weight:800;color:#43b8e9">{{ today_water }}<span style="font-size:1rem;font-weight:500"> L</span></div>
+                <div class="progress mt-3 mb-2" style="height:8px">
+                    <div class="progress-bar bg-info" style="width:{{ water_pct }}%"></div>
+                </div>
+                <small style="color:var(--text-muted)">Goal: {{ water_goal }} L</small>
+            </div>
+        </div>
+
+        <!-- Streak -->
+        <div class="card">
+            <div class="card-header"><i class="bi bi-lightning-charge"></i> Workout Streak</div>
+            <div class="card-body text-center">
+                <div style="font-size:2.5rem;font-weight:800;color:#ffa94d">{{ streak }}<span style="font-size:1rem;font-weight:500"> days</span></div>
+                <p style="color:var(--text-muted);font-size:0.8rem;margin:0.5rem 0">Keep the momentum going 🔥</p>
+                <span class="badge bg-primary">{{ weekly_sessions }} sessions this week</span>
+            </div>
+        </div>
+
+        <!-- Macros -->
+        <div class="card">
+            <div class="card-header"><i class="bi bi-pie-chart"></i> Today's Macros</div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1" style="font-size:0.8rem">
+                        <span style="color:var(--text-soft)">Protein</span>
+                        <span style="color:var(--text-muted)">{{ today_protein }} / {{ protein_goal }} g</span>
+                    </div>
+                    <div class="progress" style="height:6px"><div class="progress-bar bg-success" style="width:{{ protein_pct }}%"></div></div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1" style="font-size:0.8rem">
+                        <span style="color:var(--text-soft)">Carbs</span>
+                        <span style="color:var(--text-muted)">{{ today_carbs }} g</span>
+                    </div>
+                    <div class="progress" style="height:6px"><div class="progress-bar bg-info" style="width:{{ calorie_pct }}%"></div></div>
+                </div>
+                <div>
+                    <div class="d-flex justify-content-between mb-1" style="font-size:0.8rem">
+                        <span style="color:var(--text-soft)">Fat</span>
+                        <span style="color:var(--text-muted)">{{ today_fat }} g</span>
+                    </div>
+                    <div class="progress" style="height:6px"><div class="progress-bar bg-warning" style="width:60%"></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Workouts -->
+<div class="card mt-1">
+    <div class="card-header"><i class="bi bi-clock-history"></i> Recent Workouts</div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Date</th><th>Name</th><th>Duration</th><th>Calories</th><th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for session in recent_sessions %}
+                    <tr>
+                        <td>{{ session.date }}</td>
+                        <td>{{ session.name|default:"Workout" }}</td>
+                        <td>{{ session.duration_minutes }} min</td>
+                        <td>{{ session.calories_burned }}</td>
+                        <td>
+                            {% if session.is_completed %}
+                            <span class="badge bg-success">Completed</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Pending</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="5" class="text-center py-4" style="color:var(--text-muted)">No workouts yet — start today! 💪</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const chartDefaults = {
+    color: '#a0a0b8',
+    grid: { color: 'rgba(255,255,255,0.05)' },
+    ticks: { color: '#6b6b80' }
+};
+
+new Chart(document.getElementById('calorieChart'), {
+    type: 'bar',
+    data: {
+        labels: {{ calorie_labels|default:"[]"|safe }},
+        datasets: [{
+            label: 'Calories',
+            data: {{ calorie_values|default:"[]"|safe }},
+            backgroundColor: 'rgba(108,99,255,0.5)',
+            borderColor: 'rgba(108,99,255,1)',
+            borderWidth: 1,
+            borderRadius: 6
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+            x: { grid: chartDefaults.grid, ticks: chartDefaults.ticks },
+            y: { beginAtZero: true, grid: chartDefaults.grid, ticks: chartDefaults.ticks }
+        }
+    }
+});
+
+new Chart(document.getElementById('weightChart'), {
+    type: 'line',
+    data: {
+        labels: {{ weight_labels|default:"[]"|safe }},
+        datasets: [{
+            label: 'Weight (kg)',
+            data: {{ weight_values|default:"[]"|safe }},
+            borderColor: '#ff6584',
+            backgroundColor: 'rgba(255,101,132,0.1)',
+            tension: 0.4,
+            fill: true,
+            pointBackgroundColor: '#ff6584',
+            pointRadius: 4
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+            x: { grid: chartDefaults.grid, ticks: chartDefaults.ticks },
+            y: { grid: chartDefaults.grid, ticks: chartDefaults.ticks }
+        }
+    }
+});
+</script>
+{% endblock %}
