@@ -40,7 +40,11 @@ class ProfileUpdateForm(forms.ModelForm):
         widgets = {f: forms.TextInput(attrs={'class': 'form-control'}) for f in ['age', 'height', 'weight', 'goal_weight', 'budget', 'city']}
 
     def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
+        if user:
+            self.fields['first_name'].initial = user.first_name
+            self.fields['last_name'].initial = user.last_name
         select_fields = ['gender', 'goal', 'activity_level', 'diet_type', 'workout_experience', 'theme']
         for field in select_fields:
             self.fields[field].widget.attrs['class'] = 'form-select'

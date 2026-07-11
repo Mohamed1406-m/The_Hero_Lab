@@ -22,6 +22,9 @@
     <a class="nav-link {% if request.resolver_match.app_name == 'nutrition' %}active{% endif %}" href="{% url 'nutrition:dashboard' %}">
         <i class="bi bi-egg-fried"></i> Nutrition
     </a>
+    <a class="nav-link {% if request.resolver_match.url_name == 'recipes' %}active{% endif %}" href="{% url 'nutrition:recipes' %}">
+        <i class="bi bi-journal-richtext"></i> Recipes
+    </a>
     <a class="nav-link {% if request.resolver_match.app_name == 'analytics' %}active{% endif %}" href="{% url 'analytics:dashboard' %}">
         <i class="bi bi-bar-chart-line"></i> Analytics
     </a>

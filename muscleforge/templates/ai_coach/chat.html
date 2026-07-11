@@ -96,6 +96,34 @@
   .ai-session-title.new{ display:flex; align-items:center; gap:0.4rem; background: var(--ai-gradient); -webkit-background-clip:text; background-clip:text; color:transparent; }
   .ai-session-meta{ font-size: 0.7rem; color: var(--ai-dim); margin-top: 2px; }
   .ai-session-empty{ text-align:center; padding: 1.5rem; color: var(--ai-dim); font-size: 0.8rem; font-family:'IBM Plex Mono', monospace; }
+  .ai-del-btn{
+    color: var(--ai-dim); font-size: 0.75rem; opacity: 0; flex-shrink: 0;
+    transition: color .15s, opacity .15s; line-height:1;
+  }
+  .ai-session-item:hover .ai-del-btn{ opacity: 1; }
+  .ai-del-btn:hover{ color: #f87171; }
+  .ai-confirm-overlay{
+    position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:1000;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .ai-confirm-box{
+    background: var(--ai-panel-2); border:1px solid var(--ai-border);
+    border-radius:16px; padding:1.5rem; width:300px; text-align:center;
+  }
+  .ai-confirm-box p{ color:var(--ai-text); margin-bottom:1.2rem; font-size:0.9rem; }
+  .ai-confirm-actions{ display:flex; gap:0.75rem; justify-content:center; }
+  .ai-confirm-cancel{
+    background:transparent; border:1px solid var(--ai-border); color:var(--ai-text);
+    border-radius:8px; padding:0.5rem 1.2rem; cursor:pointer; font-size:0.85rem;
+    transition: border-color .15s;
+  }
+  .ai-confirm-cancel:hover{ border-color:var(--ai-violet); }
+  .ai-confirm-delete{
+    background:#ef4444; border:none; color:#fff;
+    border-radius:8px; padding:0.5rem 1.2rem; cursor:pointer; font-size:0.85rem;
+    transition: background .15s;
+  }
+  .ai-confirm-delete:hover{ background:#dc2626; }
 
   /* ---- Chat main ---- */
   .ai-main{ flex:1; min-width:0; }
@@ -178,10 +206,25 @@
     background: var(--ai-gradient); border:none; color:#fff;
     width:38px; height:38px; border-radius:10px;
     display:flex; align-items:center; justify-content:center;
-    cursor:pointer; flex-shrink:0; transition: opacity 0.2s ease;
+    cursor:pointer; flex-shrink:0; transition: all 0.2s ease;
   }
   .ai-send-btn:hover{ opacity: 0.88; }
+  .ai-send-btn.loading{
+    background: #fff;
+    color: #000;
+  }
+  .ai-stop-icon{
+    width: 14px; height: 14px;
+    background: #000;
+    border-radius: 2px;
+  }
   .ai-disclaimer{ font-size:0.7rem; color: var(--ai-dim); margin-top:0.6rem; text-align:center; }
+  .ai-bubble p { margin: 0 0 0.5rem 0; }
+  .ai-bubble p:last-child { margin-bottom: 0; }
+  .ai-bubble ul, .ai-bubble ol { padding-left: 1.2rem; margin: 0.4rem 0; }
+  .ai-bubble li { margin-bottom: 0.25rem; }
+  .ai-bubble strong { color: #fff; }
+  .ai-bubble h1,.ai-bubble h2,.ai-bubble h3 { font-size:1rem; font-weight:700; margin:0.5rem 0 0.25rem; color:#fff; }
 </style>
 {% endblock %}
 
@@ -206,12 +249,15 @@
       <div class="ai-panel">
         <div class="ai-panel-head"><i class="bi bi-chat-dots"></i> History</div>
         <div class="ai-session-list">
-          <div class="ai-session-item {% if not current_session %}active{% endif %}" onclick="location.href='{% url 'ai_coach:chat' %}'">
+          <div class="ai-session-item {% if not current_session %}active{% endif %}" onclick="newSession()">
             <div class="ai-session-title new"><i class="bi bi-plus-circle"></i> New Chat</div>
           </div>
           {% for session in sessions %}
           <div class="ai-session-item {% if current_session and session.id == current_session.id %}active{% endif %}" onclick="location.href='?session={{ session.id }}'">
-            <div class="ai-session-title">{{ session.title|default:"Chat" }}</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:0.4rem">
+              <div class="ai-session-title" style="min-width:0">{{ session.title|default:"Chat" }}</div>
+              <a class="ai-del-btn" onclick="event.stopPropagation();confirmDelete('{% url 'ai_coach:delete_session' session.id %}')" title="Delete"><i class="bi bi-trash3"></i></a>
+            </div>
             <div class="ai-session-meta">{{ session.updated_at|date:"M d" }} &middot; {{ session.messages.count }} msgs</div>
           </div>
           {% empty %}
@@ -226,12 +272,12 @@
       <div class="ai-messages" id="chatMessages">
         {% if chat_messages %}
           {% for message in chat_messages %}
-          <div class="ai-msg {{ message.role }}">
+          <div class="ai-msg {% if message.role == 'assistant' %}ai{% else %}user{% endif %}">
             <div class="ai-avatar">
               {% if message.role == 'user' %}<i class="bi bi-person-fill"></i>{% else %}<i class="bi bi-cpu"></i>{% endif %}
             </div>
             <div>
-              <div class="ai-bubble">{{ message.content|linebreaks }}</div>
+              <div class="ai-bubble" {% if message.role == 'assistant' %}data-markdown="true"{% endif %}>{{ message.content }}</div>
               <div class="ai-timestamp">{{ message.created_at|date:"H:i" }}</div>
             </div>
           </div>
@@ -262,7 +308,7 @@
         <form id="chatForm">
           <div class="ai-input-wrap">
             <input type="text" id="msgInput" placeholder="Ask anything about fitness..." autocomplete="off">
-            <button type="submit" class="ai-send-btn">
+            <button type="submit" class="ai-send-btn" id="sendBtn">
               <i class="bi bi-send-fill" style="font-size:0.85rem"></i>
             </button>
           </div>
@@ -272,50 +318,141 @@
     </div>
   </div>
 </div>
+
+<div class="ai-confirm-overlay" id="deleteOverlay" style="display:none">
+  <div class="ai-confirm-box">
+    <p>Delete this chat?</p>
+    <div class="ai-confirm-actions">
+      <button class="ai-confirm-cancel" onclick="closeDeleteModal()">Cancel</button>
+      <a id="deleteConfirmBtn" href="#" class="ai-confirm-delete">Delete</a>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
 
 {% block extra_js %}
 <script>
 const chatMessages = document.getElementById('chatMessages');
-const chatForm = document.getElementById('chatForm');
 const msgInput = document.getElementById('msgInput');
+const sendBtn = document.getElementById('sendBtn');
 const typingIndicator = document.getElementById('typingIndicator');
 let currentSessionId = {{ current_session.id|default:"null" }};
+let isSending = false;
 
 function scrollBottom() { chatMessages.scrollTop = chatMessages.scrollHeight; }
-scrollBottom();
 
-function newSession() {
-    fetch('/ai-coach/new-session/', { method:'POST', headers:{'X-CSRFToken':'{{ csrf_token }}'} })
-    .then(r => r.json()).then(d => location.href = `/ai-coach/?session=${d.session_id}`);
-}
-
-function appendMsg(role, content) {
-    const div = document.createElement('div');
-    div.className = `ai-msg ${role}`;
-    div.innerHTML = `
-        <div class="ai-avatar"><i class="bi bi-${role==='user'?'person-fill':'cpu'}"></i></div>
-        <div><div class="ai-bubble">${content}</div></div>`;
-    chatMessages.insertBefore(div, typingIndicator);
-    scrollBottom();
-}
-
-chatForm.addEventListener('submit', function(e) {
-    e.preventDefault();
-    const msg = msgInput.value.trim();
-    if (!msg) return;
-    appendMsg('user', msg);
-    msgInput.value = '';
+function showLoading() {
+    isSending = true;
+    sendBtn.disabled = false;
+    sendBtn.classList.add('loading');
+    sendBtn.innerHTML = '<div class="ai-stop-icon"></div>';
     typingIndicator.style.display = 'flex';
     scrollBottom();
+}
 
-    const es = new EventSource(`/ai-coach/stream/?session_id=${currentSessionId}`);
-    es.onmessage = function(event) {
-        const data = JSON.parse(event.data);
-        if (data.done) { es.close(); typingIndicator.style.display = 'none'; currentSessionId = data.session_id; }
-        else if (data.content) { appendMsg('ai', data.content); }
-    };
-    es.onerror = function() { es.close(); typingIndicator.style.display = 'none'; };
+function resetUI() {
+    isSending = false;
+    sendBtn.classList.remove('loading');
+    sendBtn.innerHTML = '<i class="bi bi-send-fill" style="font-size:0.85rem"></i>';
+    typingIndicator.style.display = 'none';
+}
+
+// Render markdown for messages loaded from DB
+document.querySelectorAll('.ai-bubble[data-markdown]').forEach(el => {
+    el.innerHTML = marked.parse(el.textContent.trim());
+});
+// Scroll after render settles
+requestAnimationFrame(() => scrollBottom());
+
+function confirmDelete(url) {
+    document.getElementById('deleteConfirmBtn').href = url;
+    document.getElementById('deleteOverlay').style.display = 'flex';
+}
+function closeDeleteModal() {
+    document.getElementById('deleteOverlay').style.display = 'none';
+}
+document.getElementById('deleteOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closeDeleteModal();
+});
+
+function newSession() {
+    if (!currentSessionId) return;
+    location.href = '{% url "ai_coach:chat" %}';
+}
+
+function appendMsg(role, html) {
+    const empty = document.querySelector('.ai-empty');
+    if (empty) empty.remove();
+    const d = document.createElement('div');
+    d.className = 'ai-msg ' + role;
+    d.innerHTML = '<div class="ai-avatar"><i class="bi bi-' + (role==='user'?'person-fill':'cpu') + '"></i></div><div><div class="ai-bubble">' + html + '</div></div>';
+    chatMessages.insertBefore(d, typingIndicator);
+    scrollBottom();
+    return d;
+}
+
+document.getElementById('chatForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const msg = msgInput.value.trim();
+    if (!msg || isSending) return;
+
+    appendMsg('user', msg.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'));
+    msgInput.value = '';
+    showLoading();
+
+    let aiDiv = null;
+    let fullText = '';
+    let buffer = '';
+
+    fetch('/ai-coach/stream/', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}'},
+        body: JSON.stringify({message: msg, session_id: currentSessionId})
+    }).then(function(res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+
+        function pump() {
+            return reader.read().then(function(result) {
+                if (result.done) { resetUI(); return; }
+                buffer += decoder.decode(result.value, {stream: true});
+                const lines = buffer.split('\n');
+                buffer = lines.pop();
+                lines.forEach(function(line) {
+                    if (!line.startsWith('data: ')) return;
+                    let data;
+                    try { data = JSON.parse(line.slice(6)); } catch(e) { return; }
+                    if (data.content) {
+                        fullText += data.content;
+                        if (!aiDiv) {
+                            typingIndicator.style.display = 'none';
+                            aiDiv = document.createElement('div');
+                            aiDiv.className = 'ai-msg ai';
+                            aiDiv.innerHTML = '<div class="ai-avatar"><i class="bi bi-cpu"></i></div><div><div class="ai-bubble"></div></div>';
+                            chatMessages.insertBefore(aiDiv, typingIndicator);
+                        }
+                        aiDiv.querySelector('.ai-bubble').innerHTML = marked.parse(fullText);
+                        scrollBottom();
+                    }
+                    if (data.done) {
+                        currentSessionId = data.session_id;
+                        history.replaceState(null, '', '?session=' + data.session_id);
+                        if (aiDiv) aiDiv.querySelector('.ai-bubble').innerHTML = marked.parse(fullText);
+                        resetUI();
+                        scrollBottom();
+                    }
+                });
+                return pump();
+            });
+        }
+        return pump();
+    }).catch(function(err) {
+        console.error(err);
+        appendMsg('ai', '⚠️ Something went wrong. Please try again.');
+        resetUI();
+    });
 });
 </script>
 {% endblock %}

@@ -4,7 +4,10 @@
 {% block content %}
 <div class="page-header">
     <h1><i class="bi bi-file-earmark-bar-graph me-2" style="color:var(--accent)"></i>AI Reports</h1>
-    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#reportModal"><i class="bi bi-robot me-1"></i>Generate Report</button>
+    <div style="display:flex;gap:0.5rem;align-items:center">
+        <a href="{% url 'ai_coach:chat' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i>Back to Chat</a>
+        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#reportModal"><i class="bi bi-robot me-1"></i>Generate Report</button>
+    </div>
 </div>
 
 <div class="row g-4">
@@ -41,15 +44,23 @@
                             <span class="badge bg-primary me-2">{{ report.get_report_type_display }}</span>
                             <span style="font-size:0.75rem;color:var(--text-muted)">{{ report.created_at|date:"M d, Y" }}</span>
                         </div>
-                        <a href="#report-{{ report.id }}" data-bs-toggle="collapse" class="btn btn-outline-secondary btn-sm"><i class="bi bi-eye me-1"></i>View</a>
+                        <div style="display:flex;gap:0.4rem;align-items:center">
+                            <a href="#report-{{ report.id }}" data-bs-toggle="collapse" class="btn btn-outline-secondary btn-sm"><i class="bi bi-eye me-1"></i>View</a>
+                            <button class="btn btn-outline-secondary btn-sm" onclick="downloadReport({{ report.id }})" title="Download"><i class="bi bi-download"></i></button>
+                            <button class="btn btn-outline-danger btn-sm" onclick="confirmDeleteReport({{ report.id }})" title="Delete"><i class="bi bi-trash3"></i></button>
+                        </div>
                     </div>
                     <p style="font-size:0.875rem;color:var(--text-soft);margin-bottom:0.5rem">{{ report.content|truncatechars:180 }}</p>
                     <div id="report-{{ report.id }}" class="collapse">
-                        <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;padding:1rem;font-size:0.875rem;color:var(--text-soft);margin-top:0.75rem">
-                            {{ report.content|linebreaks }}
+                        <div class="ai-report-content" data-markdown-report="true" style="background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;padding:1rem;font-size:0.875rem;color:var(--text-soft);margin-top:0.75rem">
+                            {{ report.content }}
                         </div>
                     </div>
-                    <div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.5rem">Period: {{ report.period_start }} → {{ report.period_end }}</div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.5rem">
+                        <div style="font-size:0.75rem;color:var(--text-muted)">Period: {{ report.period_start }} → {{ report.period_end }}</div>
+                    </div>
+                    <!-- Hidden raw content for download -->
+                    <div id="report-raw-{{ report.id }}" style="display:none">{{ report.content }}</div>
                 </div>
                 {% empty %}
                 <div style="text-align:center;padding:3rem;color:var(--text-muted)">
@@ -86,4 +97,100 @@
         </div>
     </div>
 </div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteReportModal" tabindex="-1">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content" style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px">
+            <div class="modal-body text-center" style="padding:2rem">
+                <i class="bi bi-exclamation-triangle" style="font-size:2.5rem;color:#f87171;display:block;margin-bottom:1rem"></i>
+                <h6 style="font-weight:700;margin-bottom:0.5rem">Delete Report?</h6>
+                <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:1.5rem">This action cannot be undone.</p>
+                <div style="display:flex;gap:0.75rem;justify-content:center">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger btn-sm" id="confirmDeleteBtn" onclick="executeDeleteReport()"><i class="bi bi-trash3 me-1"></i>Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .ai-report-content h1, .ai-report-content h2, .ai-report-content h3 {
+        font-weight: 700;
+        margin: 1rem 0 0.4rem;
+    }
+    .ai-report-content h1 { font-size: 1.2rem; }
+    .ai-report-content h2 { font-size: 1.05rem; color: var(--accent); }
+    .ai-report-content h3 { font-size: 0.95rem; }
+    .ai-report-content p { margin-bottom: 0.5rem; }
+    .ai-report-content ul, .ai-report-content ol { padding-left: 1.5rem; margin-bottom: 0.5rem; }
+    .ai-report-content li { margin-bottom: 0.2rem; }
+    .ai-report-content strong { color: var(--accent); }
+    .ai-report-content hr { border: none; border-top: 1px solid var(--border); margin: 1rem 0; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin-icon { animation: spin 1s linear infinite; display: inline-block; }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    // Render markdown
+    document.querySelectorAll('[data-markdown-report]').forEach(function(el) {
+        if (typeof marked !== 'undefined') {
+            el.innerHTML = marked.parse(el.textContent.trim());
+        }
+    });
+})();
+
+// Download report as text file
+function downloadReport(reportId) {
+    const rawEl = document.getElementById('report-raw-' + reportId);
+    if (!rawEl) return;
+    const content = rawEl.textContent.trim();
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'MuscleForge_Report_' + reportId + '.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+// Delete report
+let reportToDelete = null;
+function confirmDeleteReport(reportId) {
+    reportToDelete = reportId;
+    new bootstrap.Modal(document.getElementById('deleteReportModal')).show();
+}
+
+function executeDeleteReport() {
+    if (!reportToDelete) return;
+    const btn = document.getElementById('confirmDeleteBtn');
+    btn.innerHTML = '<i class="bi bi-arrow-clockwise me-1 spin-icon"></i>Deleting...';
+    btn.disabled = true;
+    fetch('/ai-coach/delete-report/' + reportToDelete + '/', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+    }).then(function(res) {
+        if (res.ok) {
+            location.reload();
+        } else {
+            alert('Failed to delete report.');
+            btn.innerHTML = '<i class="bi bi-trash3 me-1"></i>Delete';
+            btn.disabled = false;
+        }
+    }).catch(function() {
+        alert('Network error.');
+        btn.innerHTML = '<i class="bi bi-trash3 me-1"></i>Delete';
+        btn.disabled = false;
+    });
+}
+</script>
 {% endblock %}

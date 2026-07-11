@@ -38,8 +38,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 5000);
     });
 
-    // Form validation
-    const forms = document.querySelectorAll('form');
+    // Form validation - only apply to forms that opt in with 'needs-validation' class
+    const forms = document.querySelectorAll('form.needs-validation');
     forms.forEach(function(form) {
         form.addEventListener('submit', function(e) {
             if (!form.checkValidity()) {
@@ -48,20 +48,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 form.classList.add('was-validated');
             }
         });
-    });
-
-    // Loading indicators
-    document.addEventListener('click', function(e) {
-        if (e.target.matches('button[type="submit"]')) {
-            const originalText = e.target.innerHTML;
-            e.target.disabled = true;
-            e.target.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...';
-            
-            setTimeout(function() {
-                e.target.disabled = false;
-                e.target.innerHTML = originalText;
-            }, 3000);
-        }
     });
 
     // Scroll to top button

@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.utils import timezone
 from django.db.models import Sum
-from .models import Food, FoodCategory, MealLog, WaterLog
+from .models import Food, FoodCategory, MealLog, WaterLog, Recipe
 from .forms import MealLogForm, WaterLogForm
 
 
@@ -101,6 +101,22 @@ def add_water(request):
             water.save()
             messages.success(request, f'{water.amount_ml}ml water logged!')
     return redirect('nutrition:dashboard')
+
+
+@method_decorator(login_required, name='dispatch')
+class RecipeListView(View):
+    template_name = 'nutrition/recipes.html'
+
+    def get(self, request):
+        goal = request.GET.get('goal', '')
+        recipes = Recipe.objects.all()
+        if goal:
+            recipes = recipes.filter(goal_type=goal)
+        return render(request, self.template_name, {
+            'recipes': recipes,
+            'selected_goal': goal,
+            'goal_choices': Recipe.GOAL_CHOICES,
+        })
 
 
 @method_decorator(login_required, name='dispatch')

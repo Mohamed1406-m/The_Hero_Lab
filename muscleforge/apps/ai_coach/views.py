@@ -13,14 +13,15 @@ from .services import stream_chat_with_ai, chat_with_ai, generate_diet_plan, gen
 class AIChatView(View):
     template_name = 'ai_coach/chat.html'
     suggested_prompts = [
-        "Create a workout plan for me",
-        "What should I eat to gain muscle",
-        "How do I improve my sleep",
-        "Best exercises for beginners",
+        "What should I eat right now to hit my calorie goal?",
+        "Did I do enough today? What's missing?",
+        "Give me a quick high-calorie Indian meal idea",
+        "Should I workout today or rest?",
     ]
 
     def get(self, request):
-        sessions = ChatSession.objects.filter(user=request.user)[:10]
+        # Only show sessions that have at least one message
+        sessions = ChatSession.objects.filter(user=request.user, messages__isnull=False).distinct()[:10]
         session_id = request.GET.get('session')
         current_session = None
         chat_messages = []
@@ -67,7 +68,7 @@ def stream_chat(request):
 @login_required
 def new_session(request):
     session = ChatSession.objects.create(user=request.user, title='New Chat')
-    return redirect(f'/ai-coach/?session={session.id}')
+    return JsonResponse({'session_id': session.id})
 
 
 @login_required
@@ -113,3 +114,12 @@ class AIReportView(View):
             'reports': AIReport.objects.filter(user=request.user)[:5],
             'latest_report': report,
         })
+
+
+@login_required
+def delete_report(request, report_id):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+    report = get_object_or_404(AIReport, id=report_id, user=request.user)
+    report.delete()
+    return JsonResponse({'status': 'ok'})

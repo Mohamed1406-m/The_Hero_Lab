@@ -13,63 +13,134 @@
 
 <div class="row">
     <div class="col-md-8 mx-auto">
+
+        <!-- Push Permission -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-bell-fill text-warning"></i> Browser Push Notifications</h6>
+            </div>
+            <div class="card-body">
+                <p class="text-white small mb-3">Enable browser notifications to get workout and meal reminders at your set times.</p>
+                <button id="enablePushBtn" class="btn btn-warning w-100">
+                    <i class="bi bi-bell"></i> Enable Push Notifications
+                </button>
+                <div id="pushStatus" class="mt-2 small text-center"></div>
+            </div>
+        </div>
+
+        <!-- Settings Form -->
         <div class="card">
             <div class="card-header">
-                <h6 class="mb-0"><i class="bi bi-bell"></i> Reminders</h6>
+                <h6 class="mb-0"><i class="bi bi-clock"></i> Reminder Times</h6>
             </div>
             <div class="card-body">
                 <form method="post">
                     {% csrf_token %}
-                    
-                    <div class="mb-3">
-                        <div class="form-check form-switch">
+
+                    <div class="mb-4">
+                        <div class="form-check form-switch mb-2">
                             <input class="form-check-input" type="checkbox" id="workout_reminder" name="workout_reminder" {% if settings.workout_reminder %}checked{% endif %}>
-                            <label class="form-check-label" for="workout_reminder">Workout Reminder</label>
+                            <label class="form-check-label fw-bold text-white" for="workout_reminder"><i class="bi bi-dumbbell me-1 text-primary"></i>Workout Reminder</label>
                         </div>
-                        <div class="input-group mt-2">
+                        <div class="input-group">
                             <span class="input-group-text">Time</span>
                             <input type="time" class="form-control" name="workout_time" value="{{ settings.workout_time|default:'08:00' }}">
                         </div>
                     </div>
-                    
-                    <div class="mb-3">
+
+                    <div class="mb-4">
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" id="meal_reminder" name="meal_reminder" {% if settings.meal_reminder %}checked{% endif %}>
+                            <label class="form-check-label fw-bold text-white" for="meal_reminder"><i class="bi bi-egg-fried me-1 text-success"></i>Meal Reminder</label>
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-text">Time</span>
+                            <input type="time" class="form-control" name="meal_reminder_time" value="{{ settings.meal_reminder_time|default:'13:00' }}">
+                        </div>
+                        <small class="text-white">Will show remaining calories needed to hit your daily goal.</small>
+                    </div>
+
+                    <div class="mb-4">
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" id="water_reminder" name="water_reminder" {% if settings.water_reminder %}checked{% endif %}>
-                            <label class="form-check-label" for="water_reminder">Water Reminder</label>
+                            <label class="form-check-label fw-bold text-white" for="water_reminder"><i class="bi bi-droplet me-1 text-info"></i>Water Reminder</label>
                         </div>
                     </div>
-                    
-                    <div class="mb-3">
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="meal_reminder" name="meal_reminder" {% if settings.meal_reminder %}checked{% endif %}>
-                            <label class="form-check-label" for="meal_reminder">Meal Reminder</label>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <div class="form-check form-switch">
+
+                    <div class="mb-4">
+                        <div class="form-check form-switch mb-2">
                             <input class="form-check-input" type="checkbox" id="sleep_reminder" name="sleep_reminder" {% if settings.sleep_reminder %}checked{% endif %}>
-                            <label class="form-check-label" for="sleep_reminder">Sleep Reminder</label>
+                            <label class="form-check-label fw-bold text-white" for="sleep_reminder"><i class="bi bi-moon me-1 text-secondary"></i>Sleep Reminder</label>
                         </div>
-                        <div class="input-group mt-2">
+                        <div class="input-group">
                             <span class="input-group-text">Time</span>
                             <input type="time" class="form-control" name="sleep_time" value="{{ settings.sleep_time|default:'22:00' }}">
                         </div>
                     </div>
-                    
-                    <div class="mb-3">
+
+                    <div class="mb-4">
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" id="email_notifications" name="email_notifications" {% if settings.email_notifications %}checked{% endif %}>
-                            <label class="form-check-label" for="email_notifications">Email Notifications</label>
+                            <label class="form-check-label fw-bold text-white" for="email_notifications"><i class="bi bi-envelope me-1"></i>Email Notifications</label>
                         </div>
                     </div>
-                    
+
                     <div class="d-grid">
                         <button type="submit" class="btn btn-primary btn-lg">Save Settings</button>
                     </div>
                 </form>
             </div>
         </div>
+
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const btn = document.getElementById('enablePushBtn');
+const status = document.getElementById('pushStatus');
+
+function updatePushUI() {
+    if (!('Notification' in window)) {
+        btn.disabled = true;
+        btn.textContent = 'Not supported in this browser';
+        return;
+    }
+    if (Notification.permission === 'granted') {
+        btn.classList.replace('btn-warning', 'btn-success');
+        btn.innerHTML = '<i class="bi bi-check-circle"></i> Push Notifications Enabled';
+        btn.disabled = true;
+        status.textContent = '';
+    } else if (Notification.permission === 'denied') {
+        btn.classList.replace('btn-warning', 'btn-danger');
+        btn.innerHTML = '<i class="bi bi-x-circle"></i> Blocked — Enable in browser settings';
+        btn.disabled = true;
+    }
+}
+
+btn.addEventListener('click', async () => {
+    const permission = await Notification.requestPermission();
+    if (permission === 'granted') {
+        status.innerHTML = '<span class="text-success">✓ Notifications enabled! Reminders will fire at your set times.</span>';
+        // Register SW and save subscription
+        if ('serviceWorker' in navigator) {
+            const reg = await navigator.serviceWorker.ready;
+            await fetch('/notifications/save-push/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ granted: true })
+            });
+        }
+    } else {
+        status.innerHTML = '<span class="text-danger">Permission denied. Enable notifications in your browser settings.</span>';
+    }
+    updatePushUI();
+});
+
+updatePushUI();
+</script>
 {% endblock %}

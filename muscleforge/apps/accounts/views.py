@@ -105,25 +105,35 @@ class ProfileView(View):
 
     def get(self, request):
         profile, _ = UserProfile.objects.get_or_create(user=request.user)
-        form = ProfileUpdateForm(instance=profile, initial={
-            'first_name': request.user.first_name,
-            'last_name': request.user.last_name,
-        })
+        form = ProfileUpdateForm(instance=profile, user=request.user)
         return render(request, self.template_name, {'form': form, 'profile': profile})
 
     def post(self, request):
         profile, _ = UserProfile.objects.get_or_create(user=request.user)
-        form = ProfileUpdateForm(request.POST, request.FILES, instance=profile)
-        if form.is_valid():
-            request.user.first_name = form.cleaned_data['first_name']
-            request.user.last_name = form.cleaned_data['last_name']
+        action = request.POST.get('form_action')
+        if action == 'personal':
+            first_name = request.POST.get('first_name', '').strip()
+            last_name = request.POST.get('last_name', '').strip()
+            if first_name:
+                request.user.first_name = first_name
+            if last_name:
+                request.user.last_name = last_name
+            request.user.save()
             if 'avatar' in request.FILES:
                 request.user.avatar = request.FILES['avatar']
-            request.user.save()
-            form.save()
-            messages.success(request, 'Profile updated successfully!')
+                request.user.save(update_fields=['avatar'])
+            messages.success(request, 'Personal info updated!')
             return redirect('accounts:profile')
-        return render(request, self.template_name, {'form': form, 'profile': profile})
+        else:
+            form = ProfileUpdateForm(request.POST, request.FILES, instance=profile, user=request.user)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Goals & settings saved!')
+                return redirect('accounts:profile')
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field}: {error}')
+            return render(request, self.template_name, {'form': form, 'profile': profile})
 
 
 @method_decorator(login_required, name='dispatch')

@@ -4,28 +4,30 @@ from django.conf import settings
 from .models import ChatSession, ChatMessage
 
 
-SYSTEM_PROMPT = """You are MuscleForge AI Coach, an expert personal fitness coach and nutritionist specializing in Indian fitness culture. You have deep knowledge of:
+SYSTEM_PROMPT = """You are MuscleForge AI Coach, a real personal fitness coach and nutritionist for an Indian guy trying to gain weight. You talk like a real coach — direct, motivating, no fluff.
 
-- Workout planning (home workouts, gym workouts, beginner to advanced)
-- Muscle gain, weight loss, fat loss, weight gain programs
-- Indian diet and nutrition (dal, roti, rice, sabzi, paneer, chicken, etc.)
-- Budget-friendly fitness and diet plans
-- Exercise form and technique
-- Supplement advice (whey protein, creatine, etc.)
-- Recovery, sleep optimization
-- Motivation and mindset
-- BMI analysis and body composition
-- Injury prevention and rehabilitation
+You know:
+- Workout planning (home, gym, beginner to advanced)
+- Weight gain, muscle gain, Indian diet & nutrition
+- Budget-friendly Indian meals (dal, roti, rice, paneer, eggs, chicken, soya, peanut butter)
+- Supplements (whey, creatine, etc.), recovery, sleep
+- BMI, body composition, injury prevention
 
-Always:
-- Be encouraging and motivational
-- Provide specific, actionable advice
-- Consider Indian food preferences and budget constraints
-- Use metric units (kg, cm)
-- Format responses with markdown (bold, lists, headers)
-- Keep responses concise but comprehensive
+How to respond based on real-time context you receive:
+- If it's morning → motivate for the day, suggest a high-calorie breakfast
+- If it's evening and workout not done → push them to work out
+- If remaining calories are high → suggest specific Indian foods to close the gap RIGHT NOW
+- If calories are on track → praise and suggest what to eat next
+- If workout is done → focus on recovery nutrition (protein + carbs)
+- Always be specific — name actual foods with quantities and calories
 
-User Profile Context will be provided when available."""
+Rules:
+- Talk like a real coach, not a robot. Short punchy sentences.
+- Use markdown (bold, lists) but keep it tight
+- Always use metric units and Indian food examples
+- Never say "I'm just an AI" — act like a real coach who knows this person
+
+User context is provided below."""
 
 
 def get_or_create_session(user, session_id=None):
@@ -34,13 +36,54 @@ def get_or_create_session(user, session_id=None):
             return ChatSession.objects.get(id=session_id, user=user)
         except ChatSession.DoesNotExist:
             pass
-    return ChatSession.objects.create(user=user, title='New Chat')
+    # Don't auto-create — caller must handle None
+    return None
 
 
 def build_system_message(user):
+    from django.utils import timezone
+    from django.db.models import Sum
+
+    now = timezone.localtime()
+    hour = now.hour
+    if hour < 12:
+        time_of_day = 'morning'
+    elif hour < 17:
+        time_of_day = 'afternoon'
+    elif hour < 21:
+        time_of_day = 'evening'
+    else:
+        time_of_day = 'night'
+
+    # Today's calories
+    try:
+        from apps.nutrition.models import MealLog
+        today = now.date()
+        logged_calories = MealLog.objects.filter(
+            user=user, date=today
+        ).aggregate(total=Sum('calories'))['total'] or 0
+        calorie_goal = user.profile.daily_calorie_goal
+        remaining_calories = max(0, calorie_goal - logged_calories)
+        calorie_context = f"""\n- Time of day: {time_of_day} ({now.strftime('%H:%M')})
+- Calories logged today: {round(logged_calories)} / {calorie_goal} kcal
+- Remaining calories needed: {round(remaining_calories)} kcal"""
+    except Exception:
+        calorie_context = f"\n- Time of day: {time_of_day} ({now.strftime('%H:%M')})"
+
+    # Workout done today?
+    try:
+        from apps.workout.models import WorkoutSession
+        workout_done = WorkoutSession.objects.filter(
+            user=user, date=today, is_completed=True
+        ).exists()
+        calorie_context += f"\n- Workout completed today: {'Yes' if workout_done else 'No'}"
+    except Exception:
+        pass
+
     try:
         profile = user.profile
         context = f"""
+
 User Profile:
 - Name: {user.full_name}
 - Age: {profile.age or 'Not set'}
@@ -54,11 +97,11 @@ User Profile:
 - BMI: {profile.bmi or 'Not calculated'}
 - Daily Calorie Goal: {profile.daily_calorie_goal} kcal
 - Budget: ₹{profile.budget or 'Not set'}/month
-- Medical Conditions: {profile.medical_conditions or 'None'}
+- Medical Conditions: {profile.medical_conditions or 'None'}{calorie_context}
 """
         return SYSTEM_PROMPT + context
     except Exception:
-        return SYSTEM_PROMPT
+        return SYSTEM_PROMPT + calorie_context
 
 
 def get_conversation_history(session, limit=20):
@@ -70,11 +113,13 @@ def chat_with_ai(user, message, session_id=None):
     """Non-streaming chat response"""
     client = Groq(api_key=settings.GROQ_API_KEY)
     session = get_or_create_session(user, session_id)
-
-    ChatMessage.objects.create(session=session, role='user', content=message)
+    if session is None:
+        session = ChatSession.objects.create(user=user, title='New Chat')
 
     history = get_conversation_history(session)
-    messages = [{'role': 'system', 'content': build_system_message(user)}] + history
+    ChatMessage.objects.create(session=session, role='user', content=message)
+
+    messages = [{'role': 'system', 'content': build_system_message(user)}] + history + [{'role': 'user', 'content': message}]
 
     response = client.chat.completions.create(
         model=settings.GROQ_MODEL,
@@ -97,11 +142,14 @@ def stream_chat_with_ai(user, message, session_id=None):
     """Streaming chat response - yields chunks"""
     client = Groq(api_key=settings.GROQ_API_KEY)
     session = get_or_create_session(user, session_id)
+    if session is None:
+        session = ChatSession.objects.create(user=user, title='New Chat')
 
+    # Get history BEFORE saving the new user message
+    history = get_conversation_history(session)
     ChatMessage.objects.create(session=session, role='user', content=message)
 
-    history = get_conversation_history(session)
-    messages = [{'role': 'system', 'content': build_system_message(user)}] + history
+    messages = [{'role': 'system', 'content': build_system_message(user)}] + history + [{'role': 'user', 'content': message}]
 
     stream = client.chat.completions.create(
         model=settings.GROQ_MODEL,

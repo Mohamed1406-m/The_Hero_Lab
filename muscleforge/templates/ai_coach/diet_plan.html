@@ -8,22 +8,9 @@
 </div>
 
 {% if plan %}
-<div class="row g-3 mb-4">
-    {% for day_name, meals in plan.items %}
-    <div class="col-md-6">
-        <div class="card h-100">
-            <div class="card-header"><i class="bi bi-calendar-day"></i> {{ day_name }}</div>
-            <div class="card-body" style="padding:1rem">
-                {% for meal_name, meal_data in meals.items %}
-                <div style="margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid var(--border)">
-                    <div style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--accent);margin-bottom:0.4rem">{{ meal_name }}</div>
-                    <div style="font-size:0.875rem;color:var(--text)">{{ meal_data }}</div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-    {% endfor %}
+<div class="card mb-4">
+    <div class="card-header"><i class="bi bi-calendar-week me-1"></i> Your Personalized 7-Day Diet Plan</div>
+    <div class="card-body ai-diet-content" id="dietPlanContent">{{ plan }}</div>
 </div>
 <div class="card">
     <div class="card-body" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
@@ -31,7 +18,7 @@
             <i class="bi bi-info-circle" style="color:var(--accent)"></i>
             This plan is AI-generated based on your profile. Consult a nutritionist for medical dietary needs.
         </div>
-        <form method="post"><{% csrf_token %}<button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-arrow-clockwise me-1"></i>Regenerate Plan</button></form>
+        <form method="post">{% csrf_token %}<button type="submit" class="btn btn-primary btn-sm" id="regenBtn" onclick="this.innerHTML='<i class=\'bi bi-arrow-clockwise me-1 spin-icon\'></i>Regenerating...';this.disabled=true;this.closest('form').submit();"><i class="bi bi-arrow-clockwise me-1"></i>Regenerate Plan</button></form>
     </div>
 </div>
 {% else %}
@@ -46,12 +33,79 @@
                 <div style="background:rgba(108,99,255,0.1);border:1px solid rgba(108,99,255,0.2);border-radius:10px;padding:0.75rem 1.25rem;font-size:0.8rem;color:var(--accent)"><i class="bi bi-check2 me-1"></i>Protein-optimized</div>
                 <div style="background:rgba(67,184,233,0.1);border:1px solid rgba(67,184,233,0.2);border-radius:10px;padding:0.75rem 1.25rem;font-size:0.8rem;color:#43b8e9"><i class="bi bi-check2 me-1"></i>Diet-type aware</div>
             </div>
-            <form method="post">
+            <form method="post" id="genForm">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-primary btn-lg"><i class="bi bi-robot me-2"></i>Generate My Diet Plan</button>
+                <button type="submit" class="btn btn-primary btn-lg" id="genBtn"><i class="bi bi-robot me-2"></i>Generate My Diet Plan</button>
             </form>
         </div>
     </div>
 </div>
 {% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin-icon { animation: spin 1s linear infinite; display: inline-block; }
+
+    /* Diet plan markdown content styling */
+    .ai-diet-content {
+        font-size: 0.9rem;
+        line-height: 1.7;
+        color: var(--text);
+    }
+    .ai-diet-content h1, .ai-diet-content h2, .ai-diet-content h3 {
+        font-weight: 700;
+        margin: 1.25rem 0 0.5rem;
+        color: var(--text);
+    }
+    .ai-diet-content h1 { font-size: 1.3rem; }
+    .ai-diet-content h2 { font-size: 1.1rem; color: var(--accent); }
+    .ai-diet-content h3 { font-size: 1rem; }
+    .ai-diet-content p { margin-bottom: 0.5rem; }
+    .ai-diet-content ul, .ai-diet-content ol { padding-left: 1.5rem; margin-bottom: 0.75rem; }
+    .ai-diet-content li { margin-bottom: 0.3rem; }
+    .ai-diet-content strong { color: var(--accent); }
+    .ai-diet-content table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0.75rem 0;
+    }
+    .ai-diet-content th, .ai-diet-content td {
+        border: 1px solid var(--border);
+        padding: 0.5rem 0.75rem;
+        font-size: 0.85rem;
+    }
+    .ai-diet-content th {
+        background: rgba(108,99,255,0.1);
+        font-weight: 600;
+    }
+    .ai-diet-content hr {
+        border: none;
+        border-top: 1px solid var(--border);
+        margin: 1.25rem 0;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Render markdown in the diet plan content
+(function() {
+    const el = document.getElementById('dietPlanContent');
+    if (el && typeof marked !== 'undefined') {
+        el.innerHTML = marked.parse(el.textContent.trim());
+    }
+
+    // Show loading state on generate
+    const genForm = document.getElementById('genForm');
+    if (genForm) {
+        genForm.addEventListener('submit', function() {
+            const btn = document.getElementById('genBtn');
+            btn.innerHTML = '<i class="bi bi-arrow-clockwise me-2 spin-icon"></i>Generating Plan...';
+            btn.disabled = true;
+        });
+    }
+})();
+</script>
 {% endblock %}

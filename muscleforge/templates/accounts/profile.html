@@ -13,7 +13,7 @@
         <div class="card text-center">
             <div class="card-body" style="padding:2rem 1.25rem">
                 <div style="position:relative;display:inline-block;margin-bottom:1rem">
-                    <img src="{{ profile.avatar_url }}" style="width:96px;height:96px;border-radius:50%;border:3px solid var(--accent);object-fit:cover" alt="">
+                    <img src="{{ user.avatar_url }}" onerror="this.src='https://ui-avatars.com/api/?name={{ user.full_name|urlencode }}&background=6c63ff&color=fff&size=96'" style="width:96px;height:96px;border-radius:50%;border:3px solid var(--accent);object-fit:cover" alt="">
                     <span style="position:absolute;bottom:4px;right:4px;width:14px;height:14px;background:#43e97b;border-radius:50%;border:2px solid var(--bg-card)"></span>
                 </div>
                 <h5 style="font-weight:700;margin-bottom:0.25rem">{{ user.full_name }}</h5>
@@ -68,8 +68,9 @@
         <div class="card">
             <div class="card-header"><i class="bi bi-person"></i> Personal Information</div>
             <div class="card-body">
-                <form method="post" enctype="multipart/form-data" novalidate>
+                <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
+                    <input type="hidden" name="form_action" value="personal">
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <label class="form-label">First Name</label>{{ form.first_name }}
@@ -90,8 +91,9 @@
         <div class="card">
             <div class="card-header"><i class="bi bi-sliders"></i> Goals & Preferences</div>
             <div class="card-body">
-                <form method="post" novalidate>
+                <form method="post">
                     {% csrf_token %}
+                    <input type="hidden" name="form_action" value="goals">
                     <div class="row g-3 mb-3">
                         <div class="col-md-4"><label class="form-label">Age</label>{{ form.age }}</div>
                         <div class="col-md-4"><label class="form-label">Gender</label>{{ form.gender }}</div>

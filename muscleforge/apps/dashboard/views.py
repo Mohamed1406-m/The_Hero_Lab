@@ -66,6 +66,7 @@ def get_dashboard_stats(user, today=None):
         'bmi_category': profile.bmi_category,
         'streak': streak,
         'weekly_sessions': weekly_sessions,
+        'weekly_days': get_weekly_days(user, today),
         'calorie_goal': profile.daily_calorie_goal,
         'protein_goal': profile.daily_protein_goal,
         'water_goal': profile.daily_water_goal,
@@ -79,14 +80,39 @@ def get_dashboard_stats(user, today=None):
 
 def calculate_streak(user, today):
     streak = 0
+    freeze_used = False
     current = today
+    # If no workout today, allow 1-day grace (streak freeze)
+    if not WorkoutSession.objects.filter(user=user, date=current, is_completed=True).exists():
+        current -= timedelta(days=1)
+        freeze_used = True
     while True:
         if WorkoutSession.objects.filter(user=user, date=current, is_completed=True).exists():
             streak += 1
             current -= timedelta(days=1)
+        elif not freeze_used:
+            freeze_used = True
+            current -= timedelta(days=1)
         else:
             break
     return streak
+
+
+def get_weekly_days(user, today):
+    """Returns list of 7 dicts for Mon-Sun of current week with completion status."""
+    week_start = today - timedelta(days=today.weekday())  # Monday
+    days = []
+    for i in range(7):
+        d = week_start + timedelta(days=i)
+        completed = WorkoutSession.objects.filter(user=user, date=d, is_completed=True).exists()
+        days.append({
+            'label': d.strftime('%a'),
+            'date': d,
+            'completed': completed,
+            'is_today': d == today,
+            'is_future': d > today,
+        })
+    return days
 
 
 @method_decorator(login_required, name='dispatch')

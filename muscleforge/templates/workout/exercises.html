@@ -197,11 +197,58 @@
     border: 1px dashed var(--mf-slate);
     border-radius: var(--mf-radius);
   }
+
+  /* ---- Tabs ---- */
+  .mf-tabs{ display:flex; gap:0.5rem; margin-bottom:1.75rem; }
+  .mf-tab{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.78rem;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    padding:0.45rem 1.1rem;
+    border-radius:999px;
+    border:1px solid var(--mf-slate);
+    color:var(--mf-paper-dim);
+    cursor:pointer;
+    background:transparent;
+    transition:border-color .15s, color .15s, background .15s;
+  }
+  .mf-tab:hover{ border-color:var(--mf-paper-dim); color:var(--mf-paper); }
+  .mf-tab.active{ border-color:var(--mf-volt); color:var(--mf-ink); background:var(--mf-volt); }
+
+  /* ---- Video thumb on card ---- */
+  .mf-card-video{
+    position:relative;
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--mf-slate);
+    aspect-ratio:16/9;
+    display:block;
+    text-decoration:none;
+  }
+  .mf-card-video img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .mf-card-video .mf-play{
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:rgba(0,0,0,0.35);
+    transition:background .15s;
+  }
+  .mf-card-video:hover .mf-play{ background:rgba(0,0,0,0.55); }
+  .mf-play i{ font-size:2.5rem; color:#fff; filter:drop-shadow(0 2px 6px rgba(0,0,0,.5)); }
 </style>
 
 <div class="mf-page">
   <div class="mf-eyebrow">Training Library</div>
   <h1 class="mf-title"><i class="bi bi-dumbbell"></i> Exercises</h1>
+
+  <!-- Tabs -->
+  <div class="mf-tabs">
+    <button class="mf-tab" id="tabAll" onclick="setTab('all')">All</button>
+    <button class="mf-tab" id="tabHome" onclick="setTab('home')"><i class="bi bi-house"></i> Home</button>
+  </div>
 
   <!-- Filters -->
   <div class="mf-filters">
@@ -245,6 +292,14 @@
          data-category="{{ exercise.category }}" data-equipment="{{ exercise.equipment }}">
       <div class="mf-card-cat">{{ exercise.get_category_display }}</div>
       <h5 class="mf-card-title">{{ exercise.name }}</h5>
+      {% if exercise.video_url %}
+      {% with vid_id=exercise.video_url|cut:"https://www.youtube.com/embed/" %}
+      <a href="https://www.youtube.com/watch?v={{ vid_id }}" target="_blank" rel="noopener" class="mf-card-video">
+        <img src="https://img.youtube.com/vi/{{ vid_id }}/hqdefault.jpg" alt="{{ exercise.name }} video" loading="lazy">
+        <span class="mf-play"><i class="bi bi-play-circle-fill"></i></span>
+      </a>
+      {% endwith %}
+      {% endif %}
       <p class="mf-card-desc">{{ exercise.description|truncatechars:100 }}</p>
       <div class="mf-card-footer">
         <span class="mf-diff {{ exercise.difficulty|default:'default' }}">{{ exercise.get_difficulty_display }}</span>
@@ -260,25 +315,30 @@
 
 {% block extra_js %}
 <script>
+    const HOME_EQUIPMENT = ['none', 'bodyweight'];
+    let activeTab = 'all';
+
+    function setTab(tab) {
+        activeTab = tab;
+        document.getElementById('tabAll').classList.toggle('active', tab === 'all');
+        document.getElementById('tabHome').classList.toggle('active', tab === 'home');
+        filterExercises();
+    }
+
     function filterExercises() {
         const difficulty = document.getElementById('difficultyFilter').value;
         const category = document.getElementById('categoryFilter').value;
         const equipment = document.getElementById('equipmentFilter').value;
         const search = document.getElementById('searchInput').value.toLowerCase();
 
-        const cards = document.querySelectorAll('.exercise-card');
-        cards.forEach(card => {
-            const diff = card.dataset.difficulty;
-            const cat = card.dataset.category;
+        document.querySelectorAll('.exercise-card').forEach(card => {
             const eq = card.dataset.equipment;
-            const text = card.innerText.toLowerCase();
-
-            const matchDiff = !difficulty || diff === difficulty;
-            const matchCat = !category || cat === category;
+            const matchTab = activeTab === 'all' || HOME_EQUIPMENT.includes(eq);
+            const matchDiff = !difficulty || card.dataset.difficulty === difficulty;
+            const matchCat = !category || card.dataset.category === category;
             const matchEq = !equipment || eq === equipment;
-            const matchSearch = !search || text.includes(search);
-
-            card.style.display = (matchDiff && matchCat && matchEq && matchSearch) ? 'flex' : 'none';
+            const matchSearch = !search || card.innerText.toLowerCase().includes(search);
+            card.style.display = (matchTab && matchDiff && matchCat && matchEq && matchSearch) ? 'flex' : 'none';
         });
     }
 
@@ -286,5 +346,9 @@
     document.getElementById('categoryFilter').addEventListener('change', filterExercises);
     document.getElementById('equipmentFilter').addEventListener('change', filterExercises);
     document.getElementById('searchInput').addEventListener('input', filterExercises);
+
+    // Check URL param to auto-activate home tab
+    if (new URLSearchParams(location.search).get('tab') === 'home') setTab('home');
+    else setTab('all');
 </script>
 {% endblock %}

@@ -1,5 +1,12 @@
 from django.contrib import admin
-from .models import Food, FoodCategory, MealLog, WaterLog
+from .models import Food, FoodCategory, MealLog, WaterLog, Recipe
+
+
+@admin.register(Recipe)
+class RecipeAdmin(admin.ModelAdmin):
+    list_display = ['name', 'goal_type', 'calories', 'protein', 'carbs', 'fat']
+    list_filter = ['goal_type']
+    search_fields = ['name']
 
 
 @admin.register(FoodCategory)

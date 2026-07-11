@@ -11,6 +11,7 @@ from .forms import WorkoutSessionForm, WorkoutPlanForm
 from apps.ai_coach.services import generate_workout_plan
 
 
+
 @method_decorator(login_required, name='dispatch')
 class ExerciseListView(View):
     template_name = 'workout/exercises.html'
@@ -134,6 +135,7 @@ class WorkoutSessionView(View):
         if form.is_valid():
             session = form.save(commit=False)
             session.user = request.user
+            session.is_completed = True  # auto-complete on log
             session.save()
             messages.success(request, 'Workout logged!')
             return redirect('workout:sessions')

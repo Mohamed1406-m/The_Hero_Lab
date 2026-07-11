@@ -1,0 +1,563 @@
+[
+  {
+    "model": "workout.exercise",
+    "pk": 101,
+    "fields": {
+      "name": "Wide Push-ups",
+      "slug": "wide-push-ups",
+      "description": "Push-up variation with wider hand placement to emphasize chest.",
+      "instructions": "1. Place hands wider than shoulder-width\n2. Lower chest to floor\n3. Push back up keeping core tight",
+      "difficulty": "beginner",
+      "category": "strength",
+      "equipment": "bodyweight",
+      "calories_per_minute": 7.0,
+      "video_url": "https://www.youtube.com/embed/0pkjOk0EiAk",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "workout.exercise",
+    "pk": 102,
+    "fields": {
+      "name": "Diamond Push-ups",
+      "slug": "diamond-push-ups",
+      "description": "Tricep-focused push-up with hands forming a diamond shape.",
+      "instructions": "1. Form a diamond with index fingers and thumbs\n2. Lower chest toward hands\n3. Push back up, keeping elbows close",
+      "difficulty": "intermediate",
+      "category": "strength",
+      "equipment": "bodyweight",
+      "calories_per_minute": 7.5,
+      "video_url": "https://www.youtube.com/embed/J0DnG1_S92I",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "workout.exercise",
+    "pk": 103,
+    "fields": {
+      "name": "Pike Push-ups",
+      "slug": "pike-push-ups",
+      "description": "Shoulder-focused push-up performed in a pike position.",
+      "instructions": "1. Form an inverted V with hips high\n2. Bend elbows to lower head toward floor\n3. Push back up",
+      "difficulty": "intermediate",
+      "category": "strength",
+      "equipment": "bodyweight",
+      "calories_per_minute": 7.0,
+      "video_url": "https://www.youtube.com/embed/sposDXWEB0A",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "workout.exercise",
+    "pk": 104,
+    "fields": {
+      "name": "Decline Push-ups",
+      "slug": "decline-push-ups",
+      "description": "Push-up with feet elevated to target upper chest and shoulders.",
+      "instructions": "1. Place feet on a chair or elevated surface\n2. Perform a push-up with hands on floor\n3. Keep body straight throughout",
+      "difficulty": "intermediate",
+      "category": "strength",
+      "equipment": "bodyweight",
+      "calories_per_minute": 7.5,
+      "video_url": "https://www.youtube.com/embed/SKPab2YC8BE",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "workout.exercise",
+    "pk": 105,
+    "fields": {
+      "name": "Jump Squats",
+      "slug": "jump-squats",
+      "description": "Explosive squat variation that builds power and burns calories.",
+      "instructions": "1. Squat down to parallel\n2. Explode upward jumping off the floor\n3. Land softly and immediately squat again",
+      "difficulty": "intermediate",
+      "category": "hiit",
+      "equipment": "bodyweight",
+      "calories_per_minute": 10.0,
+      "video_url": "https://www.youtube.com/embed/CVaEhXotL7M",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "workout.exercise",
+    "pk": 106,
+    "fields": {
+      "name": "Sumo Squats",
+      "slug": "sumo-squats",
+      "description": "Wide-stance squat targeting inner thighs and glutes.",
+      "instructions": "1. Stand with feet wider than shoulder-width, toes pointed out\n2. Lower hips keeping chest up\n3. Push through heels to stand",
+      "difficulty": "beginner",
+      "category": "strength",
+      "equipment": "bodyweight",
+      "calories_per_minute": 7.5,
+      "video_url": "https://www.youtube.com/embed/qPDFMnqYoDs",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "workout.exercise",
+    "pk": 107,
+    "fields": {
+      "name": "Bulgarian Split Squat",
+      "slug": "bulgarian-split-squat",
+      "description": "Single-leg squat with rear foot elevated for maximum quad and glute activation.",
+      "instructions": "1. Place rear foot on a chair\n2. Lower front knee toward floor\n3. Push through front heel to stand",
+      "difficulty": "advanced",
+      "category": "strength",
+      "equipment": "bodyweight",
+      "calories_per_minute": 8.5,
+      "video_url": "https://www.youtube.com/embed/2C-uNgKwPLE",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "workout.exercise",
+    "pk": 108,
+    "fields": {
+      "name": "Reverse Lunges",
+      "slug": "reverse-lunges",
+      "description": "Lunge stepping backward, easier on knees than forward lunges.",
+      "instructions": "1. Stand tall\n2. Step one foot backward and lower knee toward floor\n3. Push through front heel to return",
+      "difficulty": "beginner",
+      "category": "strength",
+      "equipment": "bodyweight",
+      "calories_per_minute": 7.0,
+      "video_url": "https://www.youtube.com/embed/xrPteyQLGAo",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "workout.exercise",
+    "pk": 109,
+    "fields": {
+      "name": "Single-Leg Glute Bridge",
+      "slug": "single-leg-glute-bridge",
+      "description": "Unilateral glute bridge for greater glute and hamstring activation.",
+      "instructions": "1. Lie on back, one knee bent foot flat, other leg extended\n2. Drive through planted heel to lift hips\n3. Squeeze glute at top, lower with control",
+      "difficulty": "intermediate",
+      "category": "strength",
+      "equipment": "bodyweight",
+      "calories_per_minute": 5.5,
+      "video_url": "https://www.youtube.com/embed/ZANtLkBc_8U",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "workout.exercise",
+    "pk": 110,
+    "fields": {
+      "name": "Donkey Kicks",
+      "slug": "donkey-kicks",
+      "description": "Glute isolation exercise performed on all fours.",
+      "instructions": "1. Start on hands and knees\n2. Kick one leg back and up, keeping knee bent\n3. Squeeze glute at top, lower and repeat",
+      "difficulty": "beginner",
+      "category": "strength",
+      "equipment": "bodyweight",
+      "calories_per_minute": 5.0,
+      "video_url": "https://www.youtube.com/embed/SJ1Xuz9D-ZQ",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "workout.exercise",
+    "pk": 111,
+    "fields": {
+      "name": "Fire Hydrants",
+      "slug": "fire-hydrants",
+      "description": "Hip abductor exercise targeting glutes and outer hips.",
+      "instructions": "1. Start on hands and knees\n2. Lift one knee out to the side keeping it bent\n3. Lower and repeat",
+      "difficulty": "beginner",
+      "category": "strength",
+      "equipment": "bodyweight",
+      "calories_per_minute": 4.5,
+      "video_url": "https://www.youtube.com/embed/sSVaFBMBMoA",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "workout.exercise",
+    "pk": 112,
+    "fields": {
+      "name": "Calf Raises",
+      "slug": "calf-raises",
+      "description": "Bodyweight exercise to strengthen and build the calf muscles.",
+      "instructions": "1. Stand with feet hip-width apart\n2. Rise onto toes as high as possible\n3. Lower slowly back down",
+      "difficulty": "beginner",
+      "category": "strength",
+      "equipment": "bodyweight",
+      "calories_per_minute": 4.0,
+      "video_url": "https://www.youtube.com/embed/gwLzBJYoWlI",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "workout.exercise",
+    "pk": 113,
+    "fields": {
+      "name": "Bicycle Crunches",
+      "slug": "bicycle-crunches",
+      "description": "Dynamic core exercise targeting abs and obliques.",
+      "instructions": "1. Lie on back, hands behind head\n2. Bring opposite elbow to knee while extending other leg\n3. Alternate sides in a pedaling motion",
+      "difficulty": "beginner",
+      "category": "strength",
+      "equipment": "bodyweight",
+      "calories_per_minute": 6.0,
+      "video_url": "https://www.youtube.com/embed/9FGilxCbdz8",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "workout.exercise",
+    "pk": 114,
+    "fields": {
+      "name": "Leg Raises",
+      "slug": "leg-raises",
+      "description": "Core exercise targeting lower abs.",
+      "instructions": "1. Lie flat on back, legs straight\n2. Raise legs to 90 degrees\n3. Lower slowly without touching floor",
+      "difficulty": "intermediate",
+      "category": "strength",
+      "equipment": "bodyweight",
+      "calories_per_minute": 5.5,
+      "video_url": "https://www.youtube.com/embed/JB2oyawG9KI",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "workout.exercise",
+    "pk": 115,
+    "fields": {
+      "name": "Russian Twists",
+      "slug": "russian-twists",
+      "description": "Rotational core exercise targeting obliques.",
+      "instructions": "1. Sit with knees bent, lean back slightly\n2. Clasp hands together\n3. Rotate torso side to side",
+      "difficulty": "intermediate",
+      "category": "strength",
+      "equipment": "bodyweight",
+      "calories_per_minute": 6.0,
+      "video_url": "https://www.youtube.com/embed/wkD8rjkodUI",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "workout.exercise",
+    "pk": 116,
+    "fields": {
+      "name": "Superman Hold",
+      "slug": "superman-hold",
+      "description": "Back extension exercise strengthening the lower back and glutes.",
+      "instructions": "1. Lie face down, arms extended overhead\n2. Lift arms, chest, and legs off floor simultaneously\n3. Hold briefly, lower and repeat",
+      "difficulty": "beginner",
+      "category": "strength",
+      "equipment": "bodyweight",
+      "calories_per_minute": 4.0,
+      "video_url": "https://www.youtube.com/embed/z6PJMT2y8GQ",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "workout.exercise",
+    "pk": 117,
+    "fields": {
+      "name": "Bear Crawl",
+      "slug": "bear-crawl",
+      "description": "Full-body crawling movement building core stability and coordination.",
+      "instructions": "1. Start on hands and knees, knees hovering 2 inches off floor\n2. Move opposite hand and foot forward\n3. Keep back flat and hips low",
+      "difficulty": "intermediate",
+      "category": "strength",
+      "equipment": "bodyweight",
+      "calories_per_minute": 8.0,
+      "video_url": "https://www.youtube.com/embed/E7HaZDSOtFk",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "workout.exercise",
+    "pk": 118,
+    "fields": {
+      "name": "Inchworm",
+      "slug": "inchworm",
+      "description": "Dynamic warm-up and full-body mobility exercise.",
+      "instructions": "1. Stand tall, hinge forward and place hands on floor\n2. Walk hands out to plank position\n3. Walk hands back to feet and stand",
+      "difficulty": "beginner",
+      "category": "flexibility",
+      "equipment": "bodyweight",
+      "calories_per_minute": 5.0,
+      "video_url": "https://www.youtube.com/embed/7kgZnJGDnBY",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "workout.exercise",
+    "pk": 119,
+    "fields": {
+      "name": "High Knees",
+      "slug": "high-knees",
+      "description": "Running in place with exaggerated knee drive for cardio and core.",
+      "instructions": "1. Run in place\n2. Drive knees up to hip height\n3. Pump arms and stay on balls of feet",
+      "difficulty": "beginner",
+      "category": "cardio",
+      "equipment": "bodyweight",
+      "calories_per_minute": 9.0,
+      "video_url": "https://www.youtube.com/embed/ZZZoCNMU48U",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "workout.exercise",
+    "pk": 120,
+    "fields": {
+      "name": "Butt Kicks",
+      "slug": "butt-kicks",
+      "description": "Cardio drill that targets hamstrings and improves running form.",
+      "instructions": "1. Jog in place\n2. Kick heels up toward glutes with each step\n3. Keep torso upright",
+      "difficulty": "beginner",
+      "category": "cardio",
+      "equipment": "bodyweight",
+      "calories_per_minute": 8.5,
+      "video_url": "https://www.youtube.com/embed/bFMjFMFCBBk",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "workout.exercise",
+    "pk": 121,
+    "fields": {
+      "name": "Squat Jumps to Tuck",
+      "slug": "squat-jumps-to-tuck",
+      "description": "Advanced plyometric combining squat jump with tuck for explosive power.",
+      "instructions": "1. Squat down\n2. Explode up and tuck knees to chest\n3. Land softly and immediately squat",
+      "difficulty": "advanced",
+      "category": "hiit",
+      "equipment": "bodyweight",
+      "calories_per_minute": 11.0,
+      "video_url": "https://www.youtube.com/embed/YGGq0AE5Uyc",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "workout.exercise",
+    "pk": 122,
+    "fields": {
+      "name": "Plank to Downward Dog",
+      "slug": "plank-to-downward-dog",
+      "description": "Dynamic movement combining core stability with shoulder and hamstring stretch.",
+      "instructions": "1. Start in plank position\n2. Push hips up into downward dog\n3. Return to plank and repeat",
+      "difficulty": "beginner",
+      "category": "flexibility",
+      "equipment": "bodyweight",
+      "calories_per_minute": 5.0,
+      "video_url": "https://www.youtube.com/embed/Ow8PBnQMhDk",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "workout.exercise",
+    "pk": 123,
+    "fields": {
+      "name": "Tricep Dips",
+      "slug": "tricep-dips",
+      "description": "Bodyweight tricep exercise using a chair or low surface.",
+      "instructions": "1. Place hands on edge of chair, feet extended\n2. Lower body by bending elbows\n3. Push back up to start",
+      "difficulty": "beginner",
+      "category": "strength",
+      "equipment": "bodyweight",
+      "calories_per_minute": 6.5,
+      "video_url": "https://www.youtube.com/embed/0326dy_-CzM",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "workout.exercise",
+    "pk": 124,
+    "fields": {
+      "name": "Hollow Body Hold",
+      "slug": "hollow-body-hold",
+      "description": "Gymnastics-based core exercise building total core tension.",
+      "instructions": "1. Lie on back, press lower back into floor\n2. Raise shoulders and legs off floor\n3. Arms extended overhead, hold position",
+      "difficulty": "intermediate",
+      "category": "strength",
+      "equipment": "bodyweight",
+      "calories_per_minute": 5.0,
+      "video_url": "https://www.youtube.com/embed/LlDNef_Ztsc",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "workout.exercise",
+    "pk": 125,
+    "fields": {
+      "name": "V-Ups",
+      "slug": "v-ups",
+      "description": "Advanced core exercise targeting upper and lower abs simultaneously.",
+      "instructions": "1. Lie flat, arms overhead\n2. Simultaneously raise legs and torso\n3. Reach hands toward feet, lower with control",
+      "difficulty": "advanced",
+      "category": "strength",
+      "equipment": "bodyweight",
+      "calories_per_minute": 7.0,
+      "video_url": "https://www.youtube.com/embed/iP2fjvG0g3w",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "workout.exercise",
+    "pk": 126,
+    "fields": {
+      "name": "Lateral Lunges",
+      "slug": "lateral-lunges",
+      "description": "Side lunge targeting inner thighs, glutes, and quads.",
+      "instructions": "1. Stand with feet together\n2. Step wide to one side and lower hips over that foot\n3. Push back to center and repeat other side",
+      "difficulty": "beginner",
+      "category": "strength",
+      "equipment": "bodyweight",
+      "calories_per_minute": 7.0,
+      "video_url": "https://www.youtube.com/embed/gwWv7aPcD88",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "workout.exercise",
+    "pk": 127,
+    "fields": {
+      "name": "Squat Pulse",
+      "slug": "squat-pulse",
+      "description": "Isometric squat hold with small pulses for muscle endurance.",
+      "instructions": "1. Lower into squat position\n2. Pulse up and down a few inches\n3. Keep tension throughout",
+      "difficulty": "beginner",
+      "category": "strength",
+      "equipment": "bodyweight",
+      "calories_per_minute": 6.5,
+      "video_url": "https://www.youtube.com/embed/OPwSCPMFJaM",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "workout.exercise",
+    "pk": 128,
+    "fields": {
+      "name": "Plank Shoulder Taps",
+      "slug": "plank-shoulder-taps",
+      "description": "Anti-rotation core exercise performed in plank position.",
+      "instructions": "1. Start in high plank\n2. Tap one hand to opposite shoulder\n3. Alternate sides keeping hips stable",
+      "difficulty": "intermediate",
+      "category": "strength",
+      "equipment": "bodyweight",
+      "calories_per_minute": 5.5,
+      "video_url": "https://www.youtube.com/embed/LEZq7QcKIBs",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "workout.exercise",
+    "pk": 129,
+    "fields": {
+      "name": "Spiderman Push-ups",
+      "slug": "spiderman-push-ups",
+      "description": "Push-up variation adding hip flexor stretch and core challenge.",
+      "instructions": "1. Start in push-up position\n2. As you lower, bring one knee to same-side elbow\n3. Push up and return leg, alternate sides",
+      "difficulty": "advanced",
+      "category": "strength",
+      "equipment": "bodyweight",
+      "calories_per_minute": 8.0,
+      "video_url": "https://www.youtube.com/embed/PmoinoBow1Q",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "workout.exercise",
+    "pk": 130,
+    "fields": {
+      "name": "Step-ups",
+      "slug": "step-ups",
+      "description": "Unilateral leg exercise using a step or chair.",
+      "instructions": "1. Stand in front of a step or chair\n2. Step up with one foot, drive opposite knee up\n3. Step back down and repeat",
+      "difficulty": "beginner",
+      "category": "strength",
+      "equipment": "bodyweight",
+      "calories_per_minute": 7.5,
+      "video_url": "https://www.youtube.com/embed/dQqApCGd5Ss",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "workout.exercise",
+    "pk": 131,
+    "fields": {
+      "name": "Toe Touches",
+      "slug": "toe-touches",
+      "description": "Core and flexibility exercise targeting abs and hamstrings.",
+      "instructions": "1. Lie on back, legs raised to 90 degrees\n2. Crunch up reaching hands toward toes\n3. Lower with control",
+      "difficulty": "beginner",
+      "category": "flexibility",
+      "equipment": "bodyweight",
+      "calories_per_minute": 5.0,
+      "video_url": "https://www.youtube.com/embed/6sBFMKHFMC4",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "workout.exercise",
+    "pk": 132,
+    "fields": {
+      "name": "Squat to Calf Raise",
+      "slug": "squat-to-calf-raise",
+      "description": "Compound movement combining squat and calf raise for full lower body.",
+      "instructions": "1. Perform a squat\n2. As you stand, rise onto toes\n3. Lower heels and repeat",
+      "difficulty": "beginner",
+      "category": "strength",
+      "equipment": "bodyweight",
+      "calories_per_minute": 7.0,
+      "video_url": "https://www.youtube.com/embed/m0fekNV_-Vc",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "workout.exercise",
+    "pk": 133,
+    "fields": {
+      "name": "Plank Hip Dips",
+      "slug": "plank-hip-dips",
+      "description": "Oblique-focused plank variation with lateral hip rotation.",
+      "instructions": "1. Start in forearm plank\n2. Rotate hips to dip one side toward floor\n3. Return to center and dip other side",
+      "difficulty": "intermediate",
+      "category": "strength",
+      "equipment": "bodyweight",
+      "calories_per_minute": 5.5,
+      "video_url": "https://www.youtube.com/embed/kSFNMFKFMiI",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  }
+]

@@ -27,11 +27,13 @@ class NotificationSettings(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='notification_settings')
     workout_reminder = models.BooleanField(default=True)
     workout_time = models.TimeField(null=True, blank=True)
-    water_reminder = models.BooleanField(default=True)
     meal_reminder = models.BooleanField(default=True)
+    meal_reminder_time = models.TimeField(null=True, blank=True)
+    water_reminder = models.BooleanField(default=True)
     sleep_reminder = models.BooleanField(default=True)
     sleep_time = models.TimeField(null=True, blank=True)
     email_notifications = models.BooleanField(default=True)
+    push_subscription = models.TextField(blank=True, default='')
 
     def __str__(self):
         return f"{self.user.email} Notification Settings"

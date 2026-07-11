@@ -313,9 +313,16 @@
       {% if exercise.video_url %}
       <div class="mf-card">
         <div class="mf-card-head"><i class="bi bi-play-circle"></i> Video Tutorial</div>
-        <div class="ratio ratio-16x9 mf-video">
-          <iframe src="{{ exercise.video_url }}" allowfullscreen></iframe>
-        </div>
+        {% with vid_id=exercise.video_url|cut:"https://www.youtube.com/embed/" %}
+        <a href="https://www.youtube.com/watch?v={{ vid_id }}" target="_blank" rel="noopener"
+           style="display:block;position:relative;border-radius:10px;overflow:hidden;border:1px solid var(--mf-slate);aspect-ratio:16/9;">
+          <img src="https://img.youtube.com/vi/{{ vid_id }}/hqdefault.jpg" alt="{{ exercise.name }} video"
+               style="width:100%;height:100%;object-fit:cover;display:block;">
+          <span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.35);">
+            <i class="bi bi-play-circle-fill" style="font-size:3rem;color:#fff;"></i>
+          </span>
+        </a>
+        {% endwith %}
       </div>
       {% endif %}
 

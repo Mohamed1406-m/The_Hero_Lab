@@ -87,6 +87,36 @@ class MealLog(models.Model):
         return f"{self.user.email} - {self.food.name} ({self.date})"
 
 
+class Recipe(models.Model):
+    GOAL_CHOICES = [
+        ('weight_gain', 'Weight Gain'),
+        ('muscle_gain', 'Muscle Gain'),
+        ('high_calorie', 'High Calorie'),
+    ]
+
+    name = models.CharField(max_length=150)
+    goal_type = models.CharField(max_length=15, choices=GOAL_CHOICES, default='weight_gain')
+    ingredients = models.TextField(help_text='One ingredient per line')
+    steps = models.TextField(help_text='One step per line')
+    calories = models.PositiveIntegerField(default=0)
+    protein = models.FloatField(default=0)
+    carbs = models.FloatField(default=0)
+    fat = models.FloatField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+    def ingredients_list(self):
+        return [i.strip() for i in self.ingredients.splitlines() if i.strip()]
+
+    def steps_list(self):
+        return [s.strip() for s in self.steps.splitlines() if s.strip()]
+
+
 class WaterLog(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='water_logs')
     date = models.DateField()

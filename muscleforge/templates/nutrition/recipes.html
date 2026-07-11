@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Recipes - MuscleForge AI{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2"><i class="bi bi-journal-richtext"></i> Recipes</h1>
+    <small class="text-muted">Budget ₹60–₹70 per serving</small>
+</div>
+
+<!-- Goal Filter -->
+<div class="mb-4">
+    <div class="btn-group" role="group">
+        <a href="{% url 'nutrition:recipes' %}" class="btn {% if not selected_goal %}btn-primary{% else %}btn-outline-primary{% endif %}">All</a>
+        {% for value, label in goal_choices %}
+        <a href="?goal={{ value }}" class="btn {% if selected_goal == value %}btn-primary{% else %}btn-outline-primary{% endif %}">{{ label }}</a>
+        {% endfor %}
+    </div>
+</div>
+
+{% if recipes %}
+<div class="row">
+    {% for recipe in recipes %}
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 fw-bold">{{ recipe.name }}</h6>
+                <span class="badge {% if recipe.goal_type == 'weight_gain' %}bg-success{% elif recipe.goal_type == 'muscle_gain' %}bg-primary{% else %}bg-warning text-dark{% endif %}">
+                    {{ recipe.get_goal_type_display }}
+                </span>
+            </div>
+            <div class="card-body">
+
+                <!-- Macros -->
+                <div class="row text-center mb-3 g-2">
+                    <div class="col-3">
+                        <div class="p-2 rounded" style="background:rgba(13,110,253,0.15)">
+                            <div class="fw-bold text-primary fs-6">{{ recipe.calories }}</div>
+                            <small class="text-muted">kcal</small>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="p-2 rounded" style="background:rgba(25,135,84,0.15)">
+                            <div class="fw-bold text-success fs-6">{{ recipe.protein }}g</div>
+                            <small class="text-muted">protein</small>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="p-2 rounded" style="background:rgba(255,193,7,0.15)">
+                            <div class="fw-bold text-warning fs-6">{{ recipe.carbs }}g</div>
+                            <small class="text-muted">carbs</small>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="p-2 rounded" style="background:rgba(220,53,69,0.15)">
+                            <div class="fw-bold text-danger fs-6">{{ recipe.fat }}g</div>
+                            <small class="text-muted">fat</small>
+                        </div>
+                    </div>
+                </div>
+
+                <hr>
+
+                <!-- Ingredients -->
+                <h6 class="mb-2 text-white"><i class="bi bi-list-ul me-1 text-success"></i>Ingredients</h6>
+                <ul class="list-unstyled mb-3">
+                    {% for ingredient in recipe.ingredients_list %}
+                    <li class="mb-1 text-white"><i class="bi bi-check2 text-success me-1"></i>{{ ingredient }}</li>
+                    {% endfor %}
+                </ul>
+
+                <hr>
+
+                <!-- Steps -->
+                <h6 class="mb-2 text-white"><i class="bi bi-123 me-1 text-primary"></i>Steps</h6>
+                <ol class="ps-3 mb-0">
+                    {% for step in recipe.steps_list %}
+                    <li class="mb-2 text-white">{{ step }}</li>
+                    {% endfor %}
+                </ol>
+
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-5 text-muted">
+    <i class="bi bi-journal-x fs-1"></i>
+    <p class="mt-2">No recipes found{% if selected_goal %} for this goal{% endif %}.</p>
+</div>
+{% endif %}
+{% endblock %}
